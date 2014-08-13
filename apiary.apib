@@ -34,10 +34,6 @@ Token vyprší po půl hodině. S každým requestem může v odpovědi přijít
 
 + Request (application/json)
     
-    + Headers
-
-            Cookie: AuthToken={token};
-            
     + Body
     
             {
@@ -54,6 +50,13 @@ Token vyprší po půl hodině. S každým requestem může v odpovědi přijít
 ## Logout [/user/logout]
 ### Logout [GET]
 Delete cookie with token... TODO
++ Request
+
+    + Headers
+    
+            Cookie: AuthToken={token};
+            
+
 + Response 200
 
 
