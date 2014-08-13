@@ -1,0 +1,317 @@
+FORMAT: 1A
+HOST: http://api.persoo.cz
+
+# Persoo
+Content recommendation service
+
+## Allowed HTTPs requests:
+
+- `POST` - Creates a resource
+- `PUT` - Updates a resource
+- `PATCH` - Partially updates a resource
+- `GET` - Retrieves a resource or list of resources
+- `DELETE` - Delete a resource
+
+## Typical Server Responses
+
+- 200 `OK` - The request was successful (some API calls may return 201 instead).
+- 201 `Created` - The request was successful and a resource was created.
+- 400 `Bad Request` - The request could not be understood or was missing required parameters.
+- 401 `Unauthorized` - Authentication token is invalid or expired (try login again)
+- 403 `Forbidden` - Access denied. 
+- 404 `Not Found` - Resource was not found.
+
+
+# Group User
+users are owners of accounts. Each users have unique credentials to access in system.
+
+TODO - Dodělat, představa je taková, že requesty budeme jen přeposílat persoo-config-unitě. V reálu budou nejspíš metody trochu jiné, nebude to umět tolik, ale zhruba to tak bude.
+
+## Login [/user/login]
+### Login [POST]
+V hlavičce odpovědi nastaví cookie tak, aby další requesty mohly probíhat bez zásahu (autentizace se bere z cookie).
+Token vyprší po půl hodině. S každým requestem může v odpovědi přijít aktualizovaný token.
+
++ Request (application/json)
+
+            {
+                "username":"user@email.com",
+                "passwordHash":"passwordHash",
+            }
+
++ Response 200 (application/json)
+    
+    + Headers
+    
+            Set-Cookie:  expires=Mon, 30-Jul-2014 09:12:42 GMT; AuthToken={super-secured-token};
+
+## Logout [/user/logout]
+### Logout [GET]
+Delete cookie with token... TODO
++ Response 200
+
+
+# Group Account
+User Account is start point in Persoo. Every User can have many Account and each account have own Scenarios and Algorithms
+(Every account have unique ID = apikey)
+
+## Account Collection [/accounts]
+### listAccounts [GET]
+Složitější metoda, potřebuje to klient - možná z toho uděláme nějakou obecnou metodu na získání všech informací důležitých pro uživatele globálně.
+
++ Response 200 (application/json)
+
+        [
+            {
+                "_ak": "53ba7fc872530e577f35c699", 
+                "name": "www.persoo.cz",
+                "settings": {
+                    "xml_feeds": [
+                        {
+                            "url": "www.eshop.cz/feed.xml",
+                            "type": "product"
+                        }
+                    ]
+                }
+            },
+            {
+                "_ak": "53c3dbdd72530e32f7503347", 
+                "name": "demo.persoo.cz",
+                "settings": {
+                    "xml_feeds": [
+                        {
+                            "url": "demo.persoo.cz/feed.xml",
+                            "type": "product"
+                        }
+                    ]
+                }
+            }
+        ]
+
+
+## Account [/accounts/{apiKey}]
+A single account object with basic data
+
++ Parameters
+    + apiKey (required, string, `53c3dbdd72585e32f7503347`) ... apiKey to which do you want to perform actions
+
+
+### getAccount [GET]
+Retrieve an account settings
++ Response 200 (application/json)
+
+        {
+            "_ak": "53c3dbdd72530e32f7503347", 
+            "name": "demo.persoo.cz"
+        }
+        
+
+## Account settings [/accounts/{apiKey}/settings]
+A single account settings
+
++ Parameters
+    + apiKey (required, string, `53c3dbdd72585e32f7503347`) ... apiKey to which do you want to perform actions
+
+
+### getAccountSettings [GET]
+Retrieve an account settings
++ Response 200 (application/json)
+
+        {
+            "xml_feeds": [
+                {
+                    "url": "demo.persoo.cz/feed.xml",
+                    "type": "product"
+                }
+            ]
+        }
+        
+        
+### putAccountSettings [PUT]
+put an account settings
++ Request (application/json)
+
+        {
+            "xml_feeds": [
+                {
+                    "url": "demo.persoo.cz/feed.xml",
+                    "type": "product"
+                }
+            ]
+        }
+        
++ Response 200 (application/json)
+
+        {
+            "xml_feeds": [
+                {
+                    "url": "demo.persoo.cz/feed.xml",
+                    "type": "product"
+                }
+            ]
+        }
+
+
+
+# Group Scenarios
+Scenarios is set of products ids composed of several algorithms.
+
+## Scenarios Collection [/accounts/{apiKey}/recommendations/scenarios]
+
++ Parameters
+    + apiKey (required, string, `53c3dbdd72585e32f7503347`) ... apiKey to which do you want to perform actions
+
+### listRecommendationScenarios [GET]
+List all Scenarios
+
++ Response 200 (application/json)
+
+        [
+            {
+                "id": "53c3dbdd72585e32f7503347", 
+                "name": "Best sellers",
+                "config": {}
+            },
+            {
+                "id": "53c3drdd72585e32f7504147", 
+                "name": "Similar products",
+                "config": {}
+            }
+        ]
+
+### createRecommendationScenario [POST]
+Create new Scenario
++ Request (application/json)
+
+        { "name": "Best sellers", "config": {} }
+
++ Response 201 (application/json)
+
+        { "id": "53c3dbdd72585e32f7508888", "name": "Best sellers", "config": {} }
+
+## Scenario [/accounts/{apiKey}/recommendations/scenarios/{scenario_id}]
+A single scenario object with all its details
+
++ Parameters
+    + apiKey (required, string, `53c3dbdd72585e32f7503347`) ... apiKey to which do you want to perform actions
+    + scenario_id (required, string, `53c3dbdd72585e32f7503347`) ... Hash string  `id` of the Scenario to perform action with.
+
+### getRecommendationScenario [GET]
+Retrieve a scenario
++ Response 200 (application/json)
+
+        { 
+            "id": "53c3dbdd72585e32f7503347", 
+            "name": "Best sellers", 
+            "config": {
+                "test": "neco",
+                "test2": "neco2"
+            } 
+        }
+
+
+### putRecommendationScenario [PUT]
+put a scenario
++ Request (application/json)
+
+        { 
+            "id": "53c3dbdd72585e32f7503347", 
+            "name": "Best sellers", 
+            "config": {
+                "test": "neco",
+                "test2": "neco2"
+            } 
+        }
+        
++ Response 200 (application/json)
+
+        { 
+            "id": "53c3dbdd72585e32f7503347", 
+            "name": "Best sellers", 
+            "config": {
+                "test": "neco",
+                "test2": "neco2"
+            } 
+        }
+
+
+### deleteRecommendationScenario [DELETE]
+Delete a scenario
++ Response 200
+
++ Response 404
+ 
+        { 
+            "error": "Resource not found"
+        }
+
+
+
+# Group Algorithms
+Algorithms is base recommendation computation logic
+
+## Algorithms Collection [/accounts/{apiKey}/recommendations/algorithms]
+
++ Parameters
+    + apiKey (required, string, `53c3dbdd72585e32f7503347`) ... apiKey to which do you want to perform actions
+
+### listRecommendationAlgorithms [GET]
+List all Algorithms
++ Response 200 (application/json)
+
+        [
+            {
+                "id": "53c3dbdd72585e32f7504477", 
+                "name": "Algorithm 1", 
+                "config": {}
+            },
+            {
+                "id": "53c3drdd72585e32f7508521", 
+                "name": "Algorithm 2", 
+                "config": {}
+            }
+        ]
+
+### createRecommendationAlgorithm [POST]
+create new Algorithm
++ Request (application/json)
+
+        { "name": "Algorithm 3" }
+
++ Response 201 (application/json)
+
+        { "id": "53c3dbdd72585e32f7507777", "name": "Algorithm 3" }
+
+## Algorithm [/accounts/{apiKey}/recommendations/algorithms/{algorithm_id}]
+A single Algorithm object with all its details
+
++ Parameters
+    + apiKey (required, string, `53c3dbdd72585e32f7503347`) ... apiKey to which do you want to perform actions
+    + algorithm_id (required, string, `53c3dbdd72585e32f7503347`) ... Hash string  `id` of the Algorithm to perform action with.
+
+### getRecommendationAlgorithm [GET]
+Retrieve an Algorithm
++ Response 200 (application/json)
+
+        { "id": "53c3dbdd72585e32f7507777", "name": "Algorithm 3" }
+
+
+### putRecommendationAlgorithm [PUT]
+put an Algorithm
++ Request (application/json)
+
+        { "id": "53c3dbdd72585e32f7507777", "name": "Algorithm new" }
+        
++ Response 200 (application/json)
+
+        { "id": "53c3dbdd72585e32f7507777", "name": "Algorithm new" }
+
+### deleteRecommendationAlgorithm [DELETE]
+Delete an Algorithm
++ Response 200
+
++ Response 404
+ 
+        { 
+            "error": "Resource not found"
+        }
