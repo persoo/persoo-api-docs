@@ -60,10 +60,10 @@ Delete cookie with token... TODO
 + Response 200
 
 ## User [/user]
-A single account settings
+A user's details/settings
 
 ### getUser [GET]
-Retrieve the account details/settings
+Retrieve the user details/settings
 + Response 200 (application/json)
 
         {
@@ -71,7 +71,7 @@ Retrieve the account details/settings
         }
     
 ### patchUser [PATCH]
-Modify (some of) the account details/settings
+Modify (some of) the user details/settings
 + Request (application/json)
 
         {
@@ -141,7 +141,7 @@ A single account object with basic data
 
 
 ### getAccount [GET]
-Retrieve an account settings
+Retrieve the account details
 + Response 200 (application/json)
 
         {
@@ -149,6 +149,25 @@ Retrieve an account settings
             "name": "demo.persoo.cz"
         }
         
+### putAccount [PUT]
+Replace the account details
++ Request (application/json)
+
+        {
+            "name": "New account name"
+        }
+    h
++ Response 200
+
+### deleteAccount [DELETE]
+Delete the account
++ Response 200
+
++ Response 404
+ 
+        { 
+            "error": "Account not found"
+        }
 
 ## Account settings [/accounts/{apiKey}/settings]
 A single account settings
@@ -172,7 +191,7 @@ Retrieve an account settings
         
         
 ### putAccountSettings [PUT]
-put an account settings
+Replace the account settings
 + Request (application/json)
 
         {
