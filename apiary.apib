@@ -176,7 +176,7 @@ Delete the account
 + Response 200
 
 + Response 404
- 
+
         { 
             "error": "Account not found"
         }
@@ -185,6 +185,7 @@ Delete the account
 A single account settings
 
 + Parameters
+
     + apiKey (required, string, `53c3dbdd72585e32f7503347`) ... apiKey to which do you want to perform actions
 
 
@@ -234,6 +235,7 @@ Scenarios is set of products ids composed of several algorithms.
 ## Scenarios Collection [/accounts/{apiKey}/recommendations/scenarios]
 
 + Parameters
+
     + apiKey (required, string, `53c3dbdd72585e32f7503347`) ... apiKey to which do you want to perform actions
 
 ### listRecommendationScenarios [GET]
@@ -320,6 +322,7 @@ Create new Scenario
 A single scenario object with all its details
 
 + Parameters
+
     + apiKey (required, string, `53c3dbdd72585e32f7503347`) ... apiKey to which do you want to perform actions
     + scenario_id (required, string, `53c3dbdd72585e32f7503347`) ... Hash string  `id` of the Scenario to perform action with.
 
@@ -390,7 +393,7 @@ Delete a scenario
 + Response 200
 
 + Response 404
- 
+
         { 
             "error": "Resource not found"
         }
@@ -403,6 +406,7 @@ Algorithms is base recommendation computation logic
 ## Algorithms Collection [/accounts/{apiKey}/recommendations/algorithms]
 
 + Parameters
+
     + apiKey (required, string, `53c3dbdd72585e32f7503347`) ... apiKey to which do you want to perform actions
 
 ### listRecommendationAlgorithms [GET]
@@ -447,6 +451,7 @@ create new Algorithm
 A single Algorithm object with all its details
 
 + Parameters
+
     + apiKey (required, string, `53c3dbdd72585e32f7503347`) ... apiKey to which do you want to perform actions
     + algorithm_id (required, string, `53c3dbdd72585e32f7503347`) ... Hash string  `id` of the Algorithm to perform action with.
 
@@ -472,7 +477,7 @@ Delete an Algorithm
 + Response 200
 
 + Response 404
- 
+
         { 
             "error": "Resource not found"
         }
