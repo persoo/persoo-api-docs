@@ -118,6 +118,20 @@ Složitější metoda, potřebuje to klient - možná z toho uděláme nějakou 
             }
         ]
 
+### postAccount [POST]
+Create a new account
++ Request (application/json)
+
+        {
+            "name": "My account"
+        }
+
++ Response 201 (application/json)
+
+        {
+            "_ak": "53c3dbdd72585e32f7508888",
+            "name": "My account"
+        }
 
 ## Account [/accounts/{apiKey}]
 A single account object with basic data
