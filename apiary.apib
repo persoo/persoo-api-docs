@@ -63,14 +63,23 @@ Delete cookie with token... TODO
 A single account settings
 
 ### getUser [GET]
-Retrieve an account settings
+Retrieve the account details/settings
 + Response 200 (application/json)
 
         {
             username: "email@email.com"
         }
-        
+    
+### patchUser [PATCH]
+Modify (some of) the account details/settings
++ Request (application/json)
 
+        {
+            [username: "email@email.com",]
+            [passwordHash: "5f4dcc3b5aa765d61d8327deb882cf99"]
+        }
+        
++ Response 200
 
 # Group Account
 User Account is start point in Persoo. Every User can have many Account and each account have own Scenarios and Algorithms
