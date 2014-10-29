@@ -459,7 +459,23 @@ A single Algorithm object with all its details
 Retrieve an Algorithm
 + Response 200 (application/json)
 
-        { "id": "53c3dbdd72585e32f7507777", "name": "Algorithm 3" }
+        { 
+            "id": "53c3dbdd72585e32f7507777", 
+            "name": "Algorithm 3",
+            "class": "a1234s",
+            "config": {
+                "must": [
+                    <fieldFilters>
+                ],
+                "mustNot": [
+                    <fieldFilters>
+                ],
+                "should": [
+                    <fieldFilters>
+                ],
+            } 
+        }
+
 
 
 ### putRecommendationAlgorithm [PUT]
