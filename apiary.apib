@@ -466,7 +466,9 @@ Retrieve an Algorithm
             "config": {
                 "must": ["categoryMatchCurrentCategory", "productIsCurrentProduct"],
                 "mustNot": ["anotherAlgorithmFilter"],
-                "should": []
+                "should": [
+                    { ref:"alsoBought", value: "0" }
+                ]
             } 
         }
 
