@@ -465,7 +465,7 @@ Retrieve an Algorithm
             "class": "productSearch",
             "config": {
                 "must": ["categoryMatchCurrentCategory", "productIsCurrentProduct"],
-                "mustNot": [],
+                "mustNot": ["anotherAlgorithmFilter"],
                 "should": []
             } 
         }
