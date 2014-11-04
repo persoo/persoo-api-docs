@@ -194,12 +194,23 @@ Retrieve an account settings
 + Response 200 (application/json)
 
         {
-            "xml_feeds": [
-                {
-                    "url": "demo.persoo.cz/feed.xml",
-                    "type": "product"
-                }
-            ]
+            "productImports": {
+                "XMLFeedURL": "http://eshop.com/export/xml/persoo.xml",
+                "fieldsMapping": {
+                    "_ID": {
+                        "type": "String",
+                        "sourceField": "ITEM_ID"
+                    },
+                    "_NAME": {
+                        "type": "String",
+                        "sourceField": "PRODUCT_NAME"
+                    },
+                    "_PRICE": {
+                        "type": "Float",
+                        "sourceField": "PRICE_VAT"
+                    }          
+              }
+           }
         }
         
         
@@ -208,25 +219,46 @@ Replace the account settings
 + Request (application/json)
 
         {
-            "xml_feeds": [
-                {
-                    "url": "demo.persoo.cz/feed.xml",
-                    "type": "product"
-                }
-            ]
+            "productImports": {
+                "XMLFeedURL": "http://eshop.com/export/xml/persoo.xml",
+                "fieldsMapping": {
+                    "_ID": {
+                        "type": "String",
+                        "sourceField": "ITEM_ID"
+                    },
+                    "_NAME": {
+                        "type": "String",
+                        "sourceField": "PRODUCT_NAME"
+                    },
+                    "_PRICE": {
+                        "type": "Float",
+                        "sourceField": "PRICE_VAT"
+                    }          
+              }
+           }
         }
         
 + Response 200 (application/json)
 
         {
-            "xml_feeds": [
-                {
-                    "url": "demo.persoo.cz/feed.xml",
-                    "type": "product"
-                }
-            ]
+            "productImports": {
+                "XMLFeedURL": "http://eshop.com/export/xml/persoo.xml",
+                "fieldsMapping": {
+                    "_ID": {
+                        "type": "String",
+                        "sourceField": "ITEM_ID"
+                    },
+                    "_NAME": {
+                        "type": "String",
+                        "sourceField": "PRODUCT_NAME"
+                    },
+                    "_PRICE": {
+                        "type": "Float",
+                        "sourceField": "PRICE_VAT"
+                    }          
+              }
+           }
         }
-
 
 
 # Group Scenarios
