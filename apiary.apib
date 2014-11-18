@@ -67,22 +67,22 @@ Retrieve the user details/settings
 + Response 200 (application/json)
 
         {
-            username: "email@email.com"
+            "username": "email@email.com"
         }
     
-### patchUser [PATCH]
-Modify (some of) the user details/settings
+### updateUser [PUT]
+Modify the user details/settings
 + Request (application/json)
 
         {
-            username: "email@email.com",
-            passwordHash: "5f4dcc3b5aa765d61d8327deb882cf99"
+            "username": "email@email.com",
+            "passwordHash": "5f4dcc3b5aa765d61d8327deb882cf99"
         }
         
 + Response 200 (application/json)
 
         {
-            username: "email@email.com"
+            "username": "email@email.com"
         }
 
 
