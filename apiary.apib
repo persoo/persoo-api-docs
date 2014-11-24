@@ -65,7 +65,7 @@ Delete cookie with token.
             Set-Cookie:  expires=Thu, 01 Jan 1970 00:00:01 GMT AuthToken={token};
 
 ## Users [/users/{username}]
-A user's details/settings.
+A user's details.
 
 + Parameters
 
@@ -73,7 +73,7 @@ A user's details/settings.
 
 
 ### getUser [GET]
-Retrieve the user details/settings.
+Retrieve the user details by username or 'current' for currently logged user.
 + Response 200 (application/json)
 
         {
@@ -81,7 +81,7 @@ Retrieve the user details/settings.
         }
     
 ### updateUser [PUT]
-Modify the user details/settings. Username in JSON is not mandatory. If present, then it must match the username in request's pathname.
+Modify the user details by username or 'current' for currently logged user. Username in JSON is not mandatory. If present, then it must match the username in request's pathname.
 + Request (application/json)
 
         {
@@ -102,7 +102,7 @@ Modify the user details/settings. Username in JSON is not mandatory. If present,
 
 
 ### changePassword [POST]
-Change password for currently logged-in user.
+Change password by username or 'current' for currently logged user.
 
 + Request (application/json)
 
