@@ -28,7 +28,7 @@ The users are owners of accounts. Each users have unique credentials to access i
 TODO - Dodělat, představa je taková, že requesty budeme jen přeposílat persoo-config-unitě. V reálu budou nejspíš metody trochu jiné, nebude to umět tolik, ale zhruba to tak bude.
 
 ## Login [/login]
-### Login [POST]
+### login [POST]
 V hlavičce odpovědi nastaví cookie tak, aby další requesty mohly probíhat bez zásahu (autentizace se bere z cookie).
 Token vyprší po půl hodině. S každým requestem může v odpovědi přijít aktualizovaný token.
 
@@ -50,7 +50,7 @@ Token vyprší po půl hodině. S každým requestem může v odpovědi přijít
 + Response 401
 
 ## Logout [/logout]
-### Logout [POST]
+### logout [POST]
 Delete cookie with token.
 + Request
 
@@ -65,7 +65,7 @@ Delete cookie with token.
             Set-Cookie:  expires=Thu, 01 Jan 1970 00:00:01 GMT AuthToken={token};
 
 ## Users [/users/{username}]
-A user's details/settings
+A user's details/settings.
 
 + Parameters
 
@@ -73,7 +73,7 @@ A user's details/settings
 
 
 ### getUser [GET]
-Retrieve the user details/settings
+Retrieve the user details/settings.
 + Response 200 (application/json)
 
         {
@@ -127,17 +127,17 @@ Složitější metoda, potřebuje to klient - možná z toho uděláme nějakou 
 
         [
             {
-                "_ak": "53ba7fc872530e577f35c699", 
+                "id": "53ba7fc872530e577f35c699", 
                 "name": "www.persoo.cz"
             },
             {
-                "_ak": "53c3dbdd72530e32f7503347", 
+                "id": "53c3dbdd72530e32f7503347", 
                 "name": "demo.persoo.cz"
             }
         ]
 
-### postAccount [POST]
-Create a new account
+### createAccount [POST]
+Create a new account.
 + Request (application/json)
 
         {
@@ -147,46 +147,20 @@ Create a new account
 + Response 201 (application/json)
 
         {
-            "_ak": "53c3dbdd72585e32f7508888",
+            "id": "53c3dbdd72585e32f7508888",
             "name": "My account"
         }
 
-## Account [/accounts/{apiKey}]
+## Account [/accounts/{account_id}]
 A single account object with basic data
 
 + Parameters
 
-    + apiKey (required, string, `53c3dbdd72585e32f7503347`) ... apiKey to which do you want to perform actions
-
-
-### getAccount [GET]
-Retrieve the account details
-+ Response 200 (application/json)
-
-        {
-            "_ak": "53c3dbdd72530e32f7503347", 
-            "name": "demo.persoo.cz"
-        }
-        
-### putAccount [PUT]
-Replace the account details
-+ Request (application/json)
-
-        {
-            "_ak": "53c3dbdd72530e32f7503347",
-            "name": "New account name"
-        }
-        
-+ Response 200 (application/json)
-
-        {
-            "_ak": "53c3dbdd72530e32f7503347",
-            "name": "New account name"
-        }
+    + account_id (required, string, `53c3dbdd72585e32f7503347`) ... to which do you want to perform actions
 
 ### deleteAccount [DELETE]
-Delete the account
-+ Response 200
+Delete the account.
++ Response 204
 
 + Response 404
 
@@ -194,19 +168,20 @@ Delete the account
             "error": "Account not found"
         }
 
-## Account settings [/accounts/{apiKey}/settings]
+## Account settings [/accounts/{account_id}/settings]
 A single account settings
 
 + Parameters
 
-    + apiKey (required, string, `53c3dbdd72585e32f7503347`) ... apiKey to which do you want to perform actions
+    + account_id (required, string, `53c3dbdd72585e32f7503347`) ... to which do you want to perform actions
 
 
 ### getAccountSettings [GET]
-Retrieve an account settings
+Retrieve an account settings.
 + Response 200 (application/json)
 
         {
+            "name": "My Account Name",
             "productImports": {
                 "XMLFeedURL": "http://eshop.com/export/xml/persoo.xml",
                 "fieldsMapping": {
@@ -254,11 +229,12 @@ Retrieve an account settings
         }
         
         
-### putAccountSettings [PUT]
-Replace the account settings
+### updateAccountSettings [PUT]
+Update the account settings.
 + Request (application/json)
 
         {
+            "name": "My Account Name",
             "productImports": {
                 "XMLFeedURL": "http://eshop2.com/export/xml/persoo.xml",
                 "fieldsMapping": {
@@ -297,6 +273,7 @@ Replace the account settings
 + Response 200 (application/json)
 
         {
+            "name": "My Account Name",
             "productImports": {
                 "XMLFeedURL": "http://eshop2.com/export/xml/persoo.xml",
                 "fieldsMapping": {
@@ -328,22 +305,22 @@ Replace the account settings
                         "type": "String",
                         "sourceField": "HIERARCHY"
                     } 
-              }
-           }
+                }
+            }
         }
 
 
 # Group Scenarios
 Scenarios is set of products ids composed of several algorithms.
 
-## Scenarios Collection [/accounts/{apiKey}/recommendations/scenarios]
+## Scenarios Collection [/accounts/{account_id}/recommendations/scenarios]
 
 + Parameters
 
-    + apiKey (required, string, `53c3dbdd72585e32f7503347`) ... apiKey to which do you want to perform actions
+    + account_id (required, string, `53c3dbdd72585e32f7503347`) ... to which do you want to perform actions
 
 ### listRecommendationScenarios [GET]
-List all Scenarios
+List all Scenarios.
 
 + Response 200 (application/json)
 
@@ -413,25 +390,85 @@ List all Scenarios
         ]
 
 ### createRecommendationScenario [POST]
-Create new Scenario
+Create new Scenario.
 + Request (application/json)
 
-        { "name": "Best sellers", "config": {} }
+        { 
+            "name": "Best sellers", 
+            "isActive": true,
+            "variants": [
+                {
+                    "id": "0",
+                    "name": "<variant name>",
+                    "condition": true,
+                    "template": "<html template>",
+                    "location": {
+                         "selectorClass": "query",
+                         "selector": "#tab .products",
+                         "mode": "Replace",
+                         "onPageType": "Category",
+                         "onURL": "<regExp>"
+                    },
+                    "logic": {
+                        "count": 10,
+                        "fallbacks": [
+                            {
+                               "ref": "53c3dbdd72585e32f7504477"
+                            },
+                            {
+                               "ref": "53c3drdd72585e32f7508521"
+                            }
+                        ]
+                    }
+                }
+            ]
+        }
 
 + Response 201 (application/json)
 
-        { "id": "53c3dbdd72585e32f7508888", "name": "Best sellers", "config": {} }
+        {
+            "id": "53c3dbdd72585e32f7508888",
+            "name": "Best sellers", 
+            "isActive": true,
+            "variants": [
+                {
+                    "id": "0",
+                    "name": "<variant name>",
+                    "condition": true,
+                    "template": "<html template>",
+                    "location": {
+                         "selectorClass": "query",
+                         "selector": "#tab .products",
+                         "mode": "Replace",
+                         "onPageType": "Category",
+                         "onURL": "<regExp>"
+                    },
+                    "logic": {
+                        "count": 10,
+                        "fallbacks": [
+                            {
+                               "ref": "53c3dbdd72585e32f7504477"
+                            },
+                            {
+                               "ref": "53c3drdd72585e32f7508521"
+                            }
+                        ]
+                    }
+                }
+            ]
+        }
 
-## Scenario [/accounts/{apiKey}/recommendations/scenarios/{scenario_id}]
-A single scenario object with all its details
+## Scenario [/accounts/{account_id}/recommendations/scenarios/{scenario_id}]
+A single scenario object with all its details.
 
 + Parameters
 
-    + apiKey (required, string, `53c3dbdd72585e32f7503347`) ... apiKey to which do you want to perform actions
+    + account_id (required, string, `53c3dbdd72585e32f7503347`) ... apiKey to which do you want to perform actions
     + scenario_id (required, string, `53c3dbdd72585e32f7503347`) ... Hash string  `id` of the Scenario to perform action with.
 
 ### getRecommendationScenario [GET]
-Retrieve a scenario
+Retrieve a scenario.
+
 + Response 200 (application/json)
 
         {
@@ -467,34 +504,82 @@ Retrieve a scenario
         }
 
 
-### putRecommendationScenario [PUT]
-put a scenario
+### updateRecommendationScenario [PUT]
+Update a scenario.
+
 + Request (application/json)
 
-        { 
-            "id": "53c3dbdd72585e32f7503347", 
-            "name": "Best sellers", 
-            "config": {
-                "test": "neco",
-                "test2": "neco2"
-            } 
+        {
+            "id": "53c3dbdd72585e32f7503347",
+            "name": "Best Sellers",
+            "isActive": true,
+            "variants": [
+                {
+                    "id": "0",
+                    "name": "<variant name>",
+                    "condition": true,
+                    "template": "<html template>",
+                    "location": {
+                         "selectorClass": "query",
+                         "selector": "#tab .products",
+                         "mode": "Replace",
+                         "onPageType": "Category",
+                         "onURL": "<regExp>"
+                    },
+                    "logic": {
+                        "count": 10,
+                        "fallbacks": [
+                            {
+                               "ref": "53c3dbdd72585e32f7504477"
+                            },
+                            {
+                               "ref": "53c3drdd72585e32f7508521"
+                            }
+                        ]
+                    }
+                }
+            ]
         }
         
 + Response 200 (application/json)
 
-        { 
-            "id": "53c3dbdd72585e32f7503347", 
-            "name": "Best sellers", 
-            "config": {
-                "test": "neco",
-                "test2": "neco2"
-            } 
+        {
+            "id": "53c3dbdd72585e32f7503347",
+            "name": "Best Sellers",
+            "isActive": true,
+            "variants": [
+                {
+                    "id": "0",
+                    "name": "<variant name>",
+                    "condition": true,
+                    "template": "<html template>",
+                    "location": {
+                         "selectorClass": "query",
+                         "selector": "#tab .products",
+                         "mode": "Replace",
+                         "onPageType": "Category",
+                         "onURL": "<regExp>"
+                    },
+                    "logic": {
+                        "count": 10,
+                        "fallbacks": [
+                            {
+                               "ref": "53c3dbdd72585e32f7504477"
+                            },
+                            {
+                               "ref": "53c3drdd72585e32f7508521"
+                            }
+                        ]
+                    }
+                }
+            ]
         }
 
 
 ### deleteRecommendationScenario [DELETE]
-Delete a scenario
-+ Response 200
+Delete a scenario.
+
++ Response 204
 
 + Response 404
 
@@ -505,16 +590,16 @@ Delete a scenario
 
 
 # Group Algorithms
-Algorithms is base recommendation computation logic
+Algorithms is base recommendation computation logic.
 
-## Algorithms Collection [/accounts/{apiKey}/recommendations/algorithms]
+## Algorithms Collection [/accounts/{account_id}/recommendations/algorithms]
 
 + Parameters
 
-    + apiKey (required, string, `53c3dbdd72585e32f7503347`) ... apiKey to which do you want to perform actions
+    + account_id (required, string, `53c3dbdd72585e32f7503347`) ... to which do you want to perform actions
 
 ### listRecommendationAlgorithms [GET]
-List all Algorithms
+List all Algorithms.
 + Response 200 (application/json)
 
         [
@@ -542,7 +627,7 @@ List all Algorithms
         ]
 
 ### createRecommendationAlgorithm [POST]
-create new Algorithm
+Create new Algorithm.
 + Request (application/json)
 
         { "name": "Algorithm 3" }
@@ -551,16 +636,16 @@ create new Algorithm
 
         { "id": "53c3dbdd72585e32f7507777", "name": "Algorithm 3" }
 
-## Algorithm [/accounts/{apiKey}/recommendations/algorithms/{algorithm_id}]
+## Algorithm [/accounts/{account_id}/recommendations/algorithms/{algorithm_id}]
 A single Algorithm object with all its details
 
 + Parameters
 
-    + apiKey (required, string, `53c3dbdd72585e32f7503347`) ... apiKey to which do you want to perform actions
+    + account_id (required, string, `53c3dbdd72585e32f7503347`) ... to which do you want to perform actions
     + algorithm_id (required, string, `53c3dbdd72585e32f7503347`) ... Hash string  `id` of the Algorithm to perform action with.
 
 ### getRecommendationAlgorithm [GET]
-Retrieve an Algorithm
+Retrieve an Algorithm.
 + Response 200 (application/json)
 
         { 
@@ -578,8 +663,8 @@ Retrieve an Algorithm
 
 
 
-### putRecommendationAlgorithm [PUT]
-put an Algorithm
+### updateRecommendationAlgorithm [PUT]
+Update an Algorithm.
 + Request (application/json)
 
         { "id": "53c3dbdd72585e32f7507777", "name": "Algorithm new" }
@@ -589,7 +674,7 @@ put an Algorithm
         { "id": "53c3dbdd72585e32f7507777", "name": "Algorithm new" }
 
 ### deleteRecommendationAlgorithm [DELETE]
-Delete an Algorithm
+Delete an Algorithm.
 + Response 200
 
 + Response 404
