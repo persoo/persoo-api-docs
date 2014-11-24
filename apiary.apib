@@ -14,8 +14,9 @@ Content recommendation service
 
 ## Typical Server Responses
 
-- 200 `OK` - The request was successful (some API calls may return 201 instead).
+- 200 `OK` - The request was successful (some API calls may return 201 or 204 instead).
 - 201 `Created` - The request was successful and a resource was created.
+- 204 `No content` - The request was successful, but returns no content.
 - 400 `Bad Request` - The request could not be understood or was missing required parameters.
 - 401 `Unauthorized` - Authentication token is invalid or expired (try login again)
 - 403 `Forbidden` - Access denied. 
