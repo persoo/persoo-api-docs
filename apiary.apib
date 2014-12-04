@@ -80,20 +80,6 @@ Retrieve the user details by username or 'current' for currently logged user.
         {
             "username": "test@email.com"
         }
-    
-### updateUser [PUT]
-Modify the user details by username or 'current' for currently logged user. Username in JSON is not mandatory. If present, then it must match the username in request's pathname.
-+ Request (application/json)
-
-        {
-            "username": "email@email.com"
-        }
-        
-+ Response 200 (application/json)
-
-        {
-            "username": "email@email.com"
-        }
 
 ## Change password [/users/{username}/password]
 
