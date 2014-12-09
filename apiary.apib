@@ -168,45 +168,44 @@ Retrieve an account settings.
 + Response 200 (application/json)
 
         {
-            "name": "My Account Name",
             "productImports": {
                 "XMLFeedURL": "http://eshop.com/export/xml/persoo.xml",
                 "fieldsMapping": {
-                    "_ID": {
+                    "id": {
                         "type": "String",
                         "sourceField": "ITEM_ID"
                     },
-                    "_NAME": {
+                    "title": {
                         "type": "String",
                         "sourceField": "PRODUCT_NAME"
                     },
-                    "_PRICE": {
+                    "price": {
                         "type": "Float",
                         "sourceField": "PRICE_VAT"
                     },
-                    "_URL": {
+                    "link": {
                         "type": "String",
                         "sourceField": "URL"
                     },
-                    "_IMAGE": {
+                    "imageLink": {
                         "type": "String",
                         "sourceField": "IMGURL"
                     },
-                    "_CATEGORY": {
+                    "categoryID": {
                         "type": "String",
                         "sourceField": "CATEGORY"
                     },
-                    "_HIERARCHY": {
+                    "hierarchy": {
                         "type": "String",
                         "sourceField": "HIERARCHY"
                     } 
                 },
                 "customFieldsMapping": {
-                    "BARVA": {
+                    "barva": {
                         "type": "String",
                         "sourceField": "BARVA"
                     },
-                    "FLAG": {
+                    "flag": {
                         "type": "String",
                         "sourceField": "FLAG"
                     } 
