@@ -46,7 +46,7 @@ Token vyprší po půl hodině. S každým requestem může v odpovědi přijít
 
     + Headers
     
-            Set-Cookie:  expires=Mon, 30-Jul-2014 09:12:42 GMT; AuthToken={token};
+            Set-Cookie:  expires=Mon, 30-Jul-2014 09:12:42 GMT; persooAuthToken={token};
 
 + Response 401
 
@@ -57,13 +57,13 @@ Delete cookie with token.
 
     + Headers
     
-            Cookie: AuthToken={token};
+            Cookie: persooAuthToken={token};
             
 + Response 204
 
     + Headers
     
-            Set-Cookie:  expires=Thu, 01 Jan 1970 00:00:01 GMT AuthToken={token};
+            Set-Cookie:  expires=Thu, 01 Jan 1970 00:00:01 GMT persooAuthToken={token};
 
 ## Users [/users/{username}]
 A user's details.
@@ -123,7 +123,7 @@ Složitější metoda, potřebuje to klient - možná z toho uděláme nějakou 
             }
         ]
 
-### createAccount [POST]
+### newAccount [POST]
 Create a new account.
 + Request (application/json)
 
@@ -168,6 +168,7 @@ Retrieve an account settings.
 + Response 200 (application/json)
 
         {
+            "name": "MyAccount",
             "productImports": {
                 "XMLFeedURL": "http://eshop.com/export/xml/persoo.xml",
                 "fieldsMapping": {
@@ -375,7 +376,7 @@ List all Scenarios.
             }
         ]
 
-### createRecommendationScenario [POST]
+### newRecommendationScenario [POST]
 Create new Scenario.
 + Request (application/json)
 
@@ -592,27 +593,39 @@ List all Algorithms.
             {
                 "id": "53c3dbdd72585e32f7504477", 
                 "name": "Algorithm 1", 
-                "config": {}
+                "class": "productSearch",
+                "config": {
+                    "must": ["categoryMatchCurrentCategory", "productIsCurrentProduct"],
+                    "mustNot": ["anotherAlgorithmFilter"],
+                    "should": [
+                        { "ref": "alsoBought", "value": "0" }
+                    ]
+                }
             },
             {
                 "id": "53c3drdd72585e32f7508521", 
-                "name": "Algorithm 2", 
+                "name": "Algorithm 2",
+                "class": "lastViewed",
                 "config": {}
             },
             {
                 "id": "6644drdd72585e32f7508885", 
-                "name": "Algorithm 3", 
-                "config": {}
+                "name": "Algorithm 3",
+                "class": "custom",
+                "config": {
+                    "customKey1": "customValue1",
+                    "customKey2": "customValue2"
+                }
             },
             {
                 "id": "0124drdd72585e32f7501000", 
-                "name": "Algorithm 4", 
+                "name": "Algorithm 4",
+                "class": "custom",
                 "config": {}
             }
-            
         ]
 
-### createRecommendationAlgorithm [POST]
+### newRecommendationAlgorithm [POST]
 Create new Algorithm.
 + Request (application/json)
 
