@@ -629,11 +629,32 @@ List all Algorithms.
 Create new Algorithm.
 + Request (application/json)
 
-        { "name": "Algorithm 3" }
+        { 
+            "name": "Algorithm 3",
+            "class": "productSearch",
+            "config": {
+                "must": ["categoryMatchCurrentCategory", "productIsCurrentProduct"],
+                "mustNot": ["anotherAlgorithmFilter"],
+                "should": [
+                    { "ref": "alsoBought", "value": "0" }
+                ]
+            } 
+        }
 
 + Response 201 (application/json)
 
-        { "id": "53c3dbdd72585e32f7507777", "name": "Algorithm 3" }
+        {
+            "id": "53c3dbdd72585e32f7507777",
+            "name": "Algorithm 3",
+            "class": "productSearch",
+            "config": {
+                "must": ["categoryMatchCurrentCategory", "productIsCurrentProduct"],
+                "mustNot": ["anotherAlgorithmFilter"],
+                "should": [
+                    { "ref": "alsoBought", "value": "0" }
+                ]
+            } 
+        }
 
 ## Algorithm [/accounts/{account_id}/recommendations/algorithms/{algorithm_id}]
 A single Algorithm object with all its details
@@ -660,17 +681,37 @@ Retrieve an Algorithm.
             } 
         }
 
-
-
 ### updateRecommendationAlgorithm [PUT]
 Update an Algorithm.
 + Request (application/json)
 
-        { "id": "53c3dbdd72585e32f7507777", "name": "Algorithm new" }
+        { 
+            "id": "53c3dbdd72585e32f7507777", 
+            "name": "Algorithm 3",
+            "class": "productSearch",
+            "config": {
+                "must": ["categoryMatchCurrentCategory", "productIsCurrentProduct"],
+                "mustNot": ["anotherAlgorithmFilter"],
+                "should": [
+                    { "ref": "alsoBought", "value": "0" }
+                ]
+            } 
+        }
         
 + Response 200 (application/json)
 
-        { "id": "53c3dbdd72585e32f7507777", "name": "Algorithm new" }
+        { 
+            "id": "53c3dbdd72585e32f7507777", 
+            "name": "Algorithm 3",
+            "class": "productSearch",
+            "config": {
+                "must": ["categoryMatchCurrentCategory", "productIsCurrentProduct"],
+                "mustNot": ["anotherAlgorithmFilter"],
+                "should": [
+                    { "ref": "alsoBought", "value": "0" }
+                ]
+            } 
+        }
 
 ### deleteRecommendationAlgorithm [DELETE]
 Delete an Algorithm.
