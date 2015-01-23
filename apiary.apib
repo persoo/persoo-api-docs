@@ -171,45 +171,33 @@ Retrieve an account settings.
             "name": "MyAccount",
             "productImports": {
                 "sourceURL": "http://eshop.com/export/xml/persoo.xml",
-                "fieldsMapping": {
-                    "id": {
-                        "type": "String",
-                        "sourceField": "ITEM_ID"
+                "fieldsMapping" : {
+                    "id" : {
+                            "sourceField" : "id",
+                            "type" : "string"
                     },
-                    "title": {
-                        "type": "String",
-                        "sourceField": "PRODUCT_NAME"
+                    "title" : {
+                            "sourceField" : "title",
+                            "type" : "string"
                     },
-                    "price": {
-                        "type": "Float",
-                        "sourceField": "PRICE_VAT"
-                    },
-                    "link": {
-                        "type": "String",
-                        "sourceField": "URL"
-                    },
-                    "imageLink": {
-                        "type": "String",
-                        "sourceField": "IMGURL"
-                    },
-                    "categoryID": {
-                        "type": "String",
-                        "sourceField": "CATEGORY"
-                    },
-                    "hierarchy": {
-                        "type": "String",
-                        "sourceField": "HIERARCHY"
-                    } 
+                    "price" : {
+                            "sourceField" : "price",
+                            "type" : "double"
+                    }
                 },
-                "customFieldsMapping": {
-                    "barva": {
-                        "type": "String",
-                        "sourceField": "BARVA"
+                "customFieldsMapping" : {
+                    "COLOR" : {
+                            "sourceField" : "COLOR",
+                            "type" : "string"
                     },
-                    "flag": {
-                        "type": "String",
-                        "sourceField": "FLAG"
-                    } 
+                    "AVAILABLE" : {
+                            "sourceField" : "AVAILABLE",
+                            "type" : "int"
+                    },
+                    "NOVINKA" : {
+                            "sourceField" : "NOVINKA",
+                            "type" : "string"
+                    }
                 },
                 "javascriptPreprocessor": "function process(item) { return item; }"
             }
@@ -224,36 +212,35 @@ Update the account settings.
             "name": "My Account Name",
             "productImports": {
                 "sourceURL": "http://eshop2.com/export/xml/persoo.xml",
-                "fieldsMapping": {
-                    "_ID": {
-                        "type": "String",
-                        "sourceField": "ITEM_ID"
+                "fieldsMapping" : {
+                    "id" : {
+                            "sourceField" : "id",
+                            "type" : "string"
                     },
-                    "_NAME": {
-                        "type": "String",
-                        "sourceField": "PRODUCT_NAME"
+                    "title" : {
+                            "sourceField" : "title",
+                            "type" : "string"
                     },
-                    "_PRICE": {
-                        "type": "Float",
-                        "sourceField": "PRICE_VAT"
+                    "price" : {
+                            "sourceField" : "price",
+                            "type" : "double"
+                    }
+                },
+                "customFieldsMapping" : {
+                    "COLOR" : {
+                            "sourceField" : "COLOR",
+                            "type" : "string"
                     },
-                    "_URL": {
-                        "type": "String",
-                        "sourceField": "URL"
+                    "AVAILABLE" : {
+                            "sourceField" : "AVAILABLE",
+                            "type" : "int"
                     },
-                    "_IMAGE": {
-                        "type": "String",
-                        "sourceField": "IMGURL"
-                    },
-                    "_CATEGORY": {
-                        "type": "String",
-                        "sourceField": "CATEGORY"
-                    },
-                    "_HIERARCHY": {
-                        "type": "String",
-                        "sourceField": "HIERARCHY"
-                    } 
-              }
+                    "NOVINKA" : {
+                            "sourceField" : "NOVINKA",
+                            "type" : "string"
+                    }
+                },
+                "javascriptPreprocessor": "function process(item) { return item; }"
            }
         }
         
@@ -263,36 +250,35 @@ Update the account settings.
             "name": "My Account Name",
             "productImports": {
                 "sourceURL": "http://eshop2.com/export/xml/persoo.xml",
-                "fieldsMapping": {
-                    "_ID": {
-                        "type": "String",
-                        "sourceField": "ITEM_ID"
+                "fieldsMapping" : {
+                    "id" : {
+                            "sourceField" : "id",
+                            "type" : "string"
                     },
-                    "_NAME": {
-                        "type": "String",
-                        "sourceField": "PRODUCT_NAME"
+                    "title" : {
+                            "sourceField" : "title",
+                            "type" : "string"
                     },
-                    "_PRICE": {
-                        "type": "Float",
-                        "sourceField": "PRICE_VAT"
+                    "price" : {
+                            "sourceField" : "price",
+                            "type" : "double"
+                    }
+                },
+                "customFieldsMapping" : {
+                    "COLOR" : {
+                            "sourceField" : "COLOR",
+                            "type" : "string"
                     },
-                    "_URL": {
-                        "type": "String",
-                        "sourceField": "URL"
+                    "AVAILABLE" : {
+                            "sourceField" : "AVAILABLE",
+                            "type" : "int"
                     },
-                    "_IMAGE": {
-                        "type": "String",
-                        "sourceField": "IMGURL"
-                    },
-                    "_CATEGORY": {
-                        "type": "String",
-                        "sourceField": "CATEGORY"
-                    },
-                    "_HIERARCHY": {
-                        "type": "String",
-                        "sourceField": "HIERARCHY"
-                    } 
-                }
+                    "NOVINKA" : {
+                            "sourceField" : "NOVINKA",
+                            "type" : "string"
+                    }
+                },
+                "javascriptPreprocessor": "function process(item) { return item; }"
             }
         }
 
