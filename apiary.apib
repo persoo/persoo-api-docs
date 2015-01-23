@@ -283,6 +283,198 @@ Update the account settings.
         }
 
 
+# Group Imports
+Importing data (items, categories, ...) from external URLs.
+
+## Import Settings [/accounts/{account_id}/imports/{import_id}]
+
++ Parameters
+
+    + account_id (required, string, `53c3dbdd72585e32f7503347`) ... to which do you want to perform actions
+    + import_id (required, string, `items`) ... either "items" or "categories"
+
+### getImportSettings [GET]
+Retrieve import settings.
+
++ Response 200 (application/json)
+
+        {
+            "sourceURL": "http://eshop.com/export/xml/persoo.xml",
+            "fieldsMapping" : {
+                "id" : {
+                        "sourceField" : "id",
+                        "type" : "string"
+                },
+                "title" : {
+                        "sourceField" : "title",
+                        "type" : "string"
+                },
+                "price" : {
+                        "sourceField" : "price",
+                        "type" : "double"
+                }
+            },
+            "customFieldsMapping" : {
+                "COLOR" : {
+                        "sourceField" : "COLOR",
+                        "type" : "string"
+                },
+                "AVAILABLE" : {
+                        "sourceField" : "AVAILABLE",
+                        "type" : "int"
+                },
+                "NOVINKA" : {
+                        "sourceField" : "NOVINKA",
+                        "type" : "string"
+                }
+            },
+            "javascriptPreprocessor": "function process(item) { return item; }"
+        }
+
+### updateImportSettings [PUT]
+Update import settings.
++ Request (application/json)
+
+        {
+            "sourceURL": "http://eshop2.com/export/xml/persoo.xml",
+            "fieldsMapping" : {
+                "id" : {
+                        "sourceField" : "id",
+                        "type" : "string"
+                },
+                "title" : {
+                        "sourceField" : "title",
+                        "type" : "string"
+                },
+                "price" : {
+                        "sourceField" : "price",
+                        "type" : "double"
+                }
+            },
+            "customFieldsMapping" : {
+                "COLOR" : {
+                        "sourceField" : "COLOR",
+                        "type" : "string"
+                },
+                "AVAILABLE" : {
+                        "sourceField" : "AVAILABLE",
+                        "type" : "int"
+                },
+                "NOVINKA" : {
+                        "sourceField" : "NOVINKA",
+                        "type" : "string"
+                }
+            },
+            "javascriptPreprocessor": "function process(item) { return item; }"
+        }
+
++ Response 200 (application/json)
+
+        {
+            "sourceURL": "http://eshop2.com/export/xml/persoo.xml",
+            "fieldsMapping" : {
+                "id" : {
+                        "sourceField" : "id",
+                        "type" : "string"
+                },
+                "title" : {
+                        "sourceField" : "title",
+                        "type" : "string"
+                },
+                "price" : {
+                        "sourceField" : "price",
+                        "type" : "double"
+                }
+            },
+            "customFieldsMapping" : {
+                "COLOR" : {
+                        "sourceField" : "COLOR",
+                        "type" : "string"
+                },
+                "AVAILABLE" : {
+                        "sourceField" : "AVAILABLE",
+                        "type" : "int"
+                },
+                "NOVINKA" : {
+                        "sourceField" : "NOVINKA",
+                        "type" : "string"
+                }
+            },
+            "javascriptPreprocessor": "function process(item) { return item; }"
+        }
+
+## Run Import [/accounts/{account_id}/imports/{import_id}/run]
+
++ Parameters
+    + account_id (required, string, `53c3dbdd72585e32f7503347`) ... to which do you want to perform actions
+    + import_id (required, string, `items`) ... either "items" or "categories"
+
+### runImport [POST]
+Run import.
+
++ Response 200 (application/json)
+    
+        {
+            "run": "OK"
+        }
+
+## Get Import Status [/accounts/{account_id}/imports/{import_id}/status]
+
++ Parameters
+    + account_id (required, string, `53c3dbdd72585e32f7503347`) ... to which do you want to perform actions
+    + import_id (required, string, `items`) ... either "items" or "categories"
+
+### ImportStatus [GET]
+Get import status:
+* status is 
+ * "green" - last import was OK, 
+ * "yellow" - last import had problem, but previous/yesterdays import was OK, maybe source URL was down because of server updates, etc.
+ * "red" - 2 or more last imports had problems
+* lastSuccessTimestamp - timestamp of last successful import
+* lastSuccessDate - human readable date of last successful import
+* history of at most 10 imports with detailed log message
+
++ Response 200 (application/json)
+
+        {
+            "status": "green",
+            "lastSuccessTimestamp": 1420034938343,
+            "lastSuccessDate": "2014-01-23",
+            "history": [
+                {
+                    "timestamp": 1422034938343,
+                    "status": "pending",
+                    "requestID": "209e6be2-8488-4e99-ab9f-3620848cf1d2",
+                    "log": "<some data, error messages, ....>"
+                },
+                {
+                    "timestamp": 1421034938343,
+                    "status": "pending",
+                    "requestID": "199e6be2-8488-4e99-ab9f-3620848cf1c2",
+                    "log": "<some data, error messages, ....>"
+                },
+                {
+                    "timestamp": 1420034938343,
+                    "status": "OK",
+                    "requestID": "309e6be2-8488-4e99-ab9f-3620848cdf1c",
+                    "log": "<some data, error messages, ....>"
+                },
+                {
+                    "timestamp": 1419034938343,
+                    "status": "error",
+                    "requestID": "449e6be2-8488-4e99-ab9f-36201c2848cf",
+                    "log": "<some data, error messages, ....>"
+                },
+                {
+                    "timestamp": 1418034938343,
+                    "status": "OK",
+                    "requestID": "929e6be2-8488-4e99-ab9f-3620848c2cf1",
+                    "log": "<some data, error messages, ....>"
+                }
+            ]
+        }
+
+
 # Group Scenarios
 Scenarios is set of products ids composed of several algorithms.
 
