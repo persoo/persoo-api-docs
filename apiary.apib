@@ -320,19 +320,68 @@ Update the account settings.
 # Group Imports
 Importing data (items, categories, ...) from external URLs.
 
+## Import Settings Collection [/accounts/{account_id}/imports]
+
++ Parameters
+
+    + account_id (required, string, `53c3dbdd72585e32f7503347`) ... to which do you want to perform actions
+
+### getImportSettings [GET]
+Retrieve import settings for all available imports.
+
++ Response 200 (application/json)
+        
+        [
+            {
+                "isActive": true,
+                "sourceURL": "http://eshop.com/export/xml/persoo.xml",
+                "fieldsMapping" : {
+                    "id" : {
+                            "sourceField" : "id",
+                            "type" : "string"
+                    },
+                    "title" : {
+                            "sourceField" : "title",
+                            "type" : "string"
+                    },
+                    "price" : {
+                            "sourceField" : "price",
+                            "type" : "double"
+                    }
+                },
+                "customFieldsMapping" : {
+                    "COLOR" : {
+                            "sourceField" : "COLOR",
+                            "type" : "string"
+                    },
+                    "AVAILABLE" : {
+                            "sourceField" : "AVAILABLE",
+                            "type" : "int"
+                    },
+                    "NOVINKA" : {
+                            "sourceField" : "NOVINKA",
+                            "type" : "string"
+                    }
+                },
+                "javascriptPreprocessor": "function process(item) { return item; }"
+            }
+        ]
+
+
 ## Import Settings [/accounts/{account_id}/imports/{import_id}]
 
 + Parameters
 
     + account_id (required, string, `53c3dbdd72585e32f7503347`) ... to which do you want to perform actions
-    + import_id (required, string, `items`) ... either "items" or "categories"
+    + import_id (required, string, `products`) ... either "products" or "categories"
 
-### getImportSettings [GET]
+### getImportSetting [GET]
 Retrieve import settings.
 
 + Response 200 (application/json)
 
         {
+            "isActive": true,
             "sourceURL": "http://eshop.com/export/xml/persoo.xml",
             "fieldsMapping" : {
                 "id" : {
@@ -365,11 +414,12 @@ Retrieve import settings.
             "javascriptPreprocessor": "function process(item) { return item; }"
         }
 
-### updateImportSettings [PUT]
+### updateImportSetting [PUT]
 Update import settings.
 + Request (application/json)
 
         {
+            "isActive": true,
             "sourceURL": "http://eshop2.com/export/xml/persoo.xml",
             "fieldsMapping" : {
                 "id" : {
@@ -405,6 +455,7 @@ Update import settings.
 + Response 200 (application/json)
 
         {
+            "isActive": true,
             "sourceURL": "http://eshop2.com/export/xml/persoo.xml",
             "fieldsMapping" : {
                 "id" : {
@@ -441,7 +492,7 @@ Update import settings.
 
 + Parameters
     + account_id (required, string, `53c3dbdd72585e32f7503347`) ... to which do you want to perform actions
-    + import_id (required, string, `items`) ... either "items" or "categories"
+    + import_id (required, string, `products`) ... either "products" or "categories"
 
 ### runImport [POST]
 Run import.
@@ -449,14 +500,14 @@ Run import.
 + Response 200 (application/json)
     
         {
-            "id": "53c3dbdd72585e32f7503347"
+            "id": "209e6be2-8488-4e99-ab9f-3620848cf1d2"
         }
 
 ## Get Import Status [/accounts/{account_id}/imports/{import_id}/status]
 
 + Parameters
     + account_id (required, string, `53c3dbdd72585e32f7503347`) ... to which do you want to perform actions
-    + import_id (required, string, `items`) ... either "items" or "categories"
+    + import_id (required, string, `products`) ... either "products" or "categories"
 
 ### ImportStatus [GET]
 Get import status:
@@ -478,32 +529,32 @@ Get import status:
                 {
                     "timestamp": 1422034938343,
                     "status": "pending",
-                    "requestID": "209e6be2-8488-4e99-ab9f-3620848cf1d2",
-                    "log": "<some data, error messages, ....>"
+                    "id": "209e6be2-8488-4e99-ab9f-3620848cf1d2",
+                    "log": "<TODO - JSON with data, error messages, ....>"
                 },
                 {
                     "timestamp": 1421034938343,
-                    "status": "pending",
-                    "requestID": "199e6be2-8488-4e99-ab9f-3620848cf1c2",
-                    "log": "<some data, error messages, ....>"
+                    "status": "running",
+                    "id": "199e6be2-8488-4e99-ab9f-3620848cf1c2",
+                    "log": "<TODO - JSON with data, error messages, ....>"
                 },
                 {
                     "timestamp": 1420034938343,
                     "status": "OK",
-                    "requestID": "309e6be2-8488-4e99-ab9f-3620848cdf1c",
-                    "log": "<some data, error messages, ....>"
+                    "id": "309e6be2-8488-4e99-ab9f-3620848cdf1c",
+                    "log": "<TODO - JSON with data, error messages, ....>"
                 },
                 {
                     "timestamp": 1419034938343,
                     "status": "error",
-                    "requestID": "449e6be2-8488-4e99-ab9f-36201c2848cf",
-                    "log": "<some data, error messages, ....>"
+                    "id": "449e6be2-8488-4e99-ab9f-36201c2848cf",
+                    "log": "<TODO - JSON with data, error messages, ....>"
                 },
                 {
                     "timestamp": 1418034938343,
                     "status": "OK",
-                    "requestID": "929e6be2-8488-4e99-ab9f-3620848c2cf1",
-                    "log": "<some data, error messages, ....>"
+                    "id": "929e6be2-8488-4e99-ab9f-3620848c2cf1",
+                    "log": "<TODO - JSON with data, error messages, ....>"
                 }
             ]
         }
