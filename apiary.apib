@@ -1,14 +1,13 @@
 FORMAT: 1A
 HOST: http://api.persoo.cz
 
-# Persoo
-Content recommendation service
+# Persoo administration API
+API for configuring Persoo accounts.
 
-## Allowed HTTPs requests:
+## Allowed HTTPs requests
 
 - `POST` - Creates a resource
 - `PUT` - Updates a resource
-- `PATCH` - Partially updates a resource
 - `GET` - Retrieves a resource or list of resources
 - `DELETE` - Delete a resource
 
@@ -18,10 +17,34 @@ Content recommendation service
 - 201 `Created` - The request was successful and a resource was created.
 - 204 `No content` - The request was successful, but returns no content.
 - 400 `Bad Request` - The request could not be understood or was missing required parameters.
-- 401 `Unauthorized` - Authentication token is invalid or expired (try login again)
+- 401 `Unauthorized` - Authentication token is invalid or expired (try login again).
 - 403 `Forbidden` - Access denied. 
 - 404 `Not Found` - Resource was not found.
 
+## Error Reporting
+
+Error responses (status 4xx/ 5xx) contain a detailed description of the error occurred:
+
+`{
+    "errors": [
+        {
+            "message": "Unauthorized."
+        }
+    ]
+}`
+
+`{
+    "errors": [
+        {
+            "message": "Config structure validation: field 'adminConfig.settings.productImport' is missing.",
+            "path": ["adminConfig", "settings", "productImport"]
+        },
+        {
+            "message": "Config structure validation: field 'adminConfig.settings.credentials' does not match type object."
+            "path": ["adminConfig", "settings", "credentials"]
+        }
+    ]
+}`
 
 # Group User
 The users are owners of accounts. Each users have unique credentials to access in system.
