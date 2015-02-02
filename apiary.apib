@@ -1,7 +1,7 @@
 FORMAT: 1A
 HOST: http://api.persoo.cz
 
-# Persoo administration API
+# Persoo administration API (next)
 API for configuring Persoo accounts.
 
 ## Allowed HTTP requests
@@ -179,6 +179,15 @@ A single account object with basic data
 
     + account_id (required, string, `53c3dbdd72585e32f7503347`) ... to which do you want to perform actions
 
+### getAccount [GET]
+Retrieve an account informations
++ Response 200 (application/json)
+
+        {
+            "id": "53c3dbdd72585e32f7508888",
+            "name": "My account"
+        }
+
 ### deleteAccount [DELETE]
 Delete the account.
 + Response 204
@@ -201,40 +210,9 @@ A single account settings
 Retrieve an account settings.
 + Response 200 (application/json)
 
-        {
-            "name": "MyAccount",
-            "productImports": {
-                "sourceURL": "http://eshop.com/export/xml/persoo.xml",
-                "fieldsMapping" : {
-                    "id" : {
-                            "sourceField" : "id",
-                            "type" : "string"
-                    },
-                    "title" : {
-                            "sourceField" : "title",
-                            "type" : "string"
-                    },
-                    "price" : {
-                            "sourceField" : "price",
-                            "type" : "double"
-                    }
-                },
-                "customFieldsMapping" : {
-                    "COLOR" : {
-                            "sourceField" : "COLOR",
-                            "type" : "string"
-                    },
-                    "AVAILABLE" : {
-                            "sourceField" : "AVAILABLE",
-                            "type" : "int"
-                    },
-                    "NOVINKA" : {
-                            "sourceField" : "NOVINKA",
-                            "type" : "string"
-                    }
-                },
-                "javascriptPreprocessor": "function process(item) { return item; }"
-            }
+        {   
+            "accountId": "53c3dbdd72585e32f7508888",
+            "name": "MyAccount"
         }
         
         
@@ -243,77 +221,15 @@ Update the account settings.
 + Request (application/json)
 
         {
-            "name": "My Account Name",
-            "productImports": {
-                "sourceURL": "http://eshop2.com/export/xml/persoo.xml",
-                "fieldsMapping" : {
-                    "id" : {
-                            "sourceField" : "id",
-                            "type" : "string"
-                    },
-                    "title" : {
-                            "sourceField" : "title",
-                            "type" : "string"
-                    },
-                    "price" : {
-                            "sourceField" : "price",
-                            "type" : "double"
-                    }
-                },
-                "customFieldsMapping" : {
-                    "COLOR" : {
-                            "sourceField" : "COLOR",
-                            "type" : "string"
-                    },
-                    "AVAILABLE" : {
-                            "sourceField" : "AVAILABLE",
-                            "type" : "int"
-                    },
-                    "NOVINKA" : {
-                            "sourceField" : "NOVINKA",
-                            "type" : "string"
-                    }
-                },
-                "javascriptPreprocessor": "function process(item) { return item; }"
-           }
+            "accountId": "53c3dbdd72585e32f7508888",
+            "name": "My Account Name"
         }
         
 + Response 200 (application/json)
 
         {
-            "name": "My Account Name",
-            "productImports": {
-                "sourceURL": "http://eshop2.com/export/xml/persoo.xml",
-                "fieldsMapping" : {
-                    "id" : {
-                            "sourceField" : "id",
-                            "type" : "string"
-                    },
-                    "title" : {
-                            "sourceField" : "title",
-                            "type" : "string"
-                    },
-                    "price" : {
-                            "sourceField" : "price",
-                            "type" : "double"
-                    }
-                },
-                "customFieldsMapping" : {
-                    "COLOR" : {
-                            "sourceField" : "COLOR",
-                            "type" : "string"
-                    },
-                    "AVAILABLE" : {
-                            "sourceField" : "AVAILABLE",
-                            "type" : "int"
-                    },
-                    "NOVINKA" : {
-                            "sourceField" : "NOVINKA",
-                            "type" : "string"
-                    }
-                },
-                "javascriptPreprocessor": "function process(item) { return item; }"
-            }
+            "accountId": "53c3dbdd72585e32f7508888",
+            "name": "My Account Name"
         }
 
 
@@ -330,7 +246,7 @@ Importing data (items, categories, ...) from external URLs.
 Retrieve import settings for all available imports.
 
 + Response 200 (application/json)
-        
+
         [
             {
                 "isActive": true,
@@ -380,7 +296,8 @@ Retrieve import settings.
 
 + Response 200 (application/json)
 
-        {
+        {   
+            "id": "products",
             "isActive": true,
             "sourceURL": "http://eshop.com/export/xml/persoo.xml",
             "fieldsMapping" : {
@@ -419,6 +336,7 @@ Update import settings.
 + Request (application/json)
 
         {
+            "id": "products",
             "isActive": true,
             "sourceURL": "http://eshop2.com/export/xml/persoo.xml",
             "fieldsMapping" : {
@@ -455,6 +373,7 @@ Update import settings.
 + Response 200 (application/json)
 
         {
+            "id": "products",
             "isActive": true,
             "sourceURL": "http://eshop2.com/export/xml/persoo.xml",
             "fieldsMapping" : {
@@ -860,10 +779,31 @@ List all Algorithms.
                 "name": "Algorithm 1", 
                 "class": "ProductSearch",
                 "config": {
-                    "must": ["categoryMatchCurrentCategory", "productIsCurrentProduct"],
-                    "mustNot": ["anotherAlgorithmFilter"],
+                    "must": [
+                        {
+                            "id": "categoryMatchCurrentCategory"
+                        },
+                        {
+                            "id": "productIsCurrentProduct"
+                        },
+                        {
+                            "id": "myCustomSignal",
+                            "name": "My custom title",
+                            "config": {
+                                "myField": {"$lt": "db.products.inBasket"}
+                            }
+                        }
+                    ],
+                    "mustNot": [
+                        {
+                            "id": "anotherAlgorithmFilter"
+                        }
+                    ],
                     "should": [
-                        { "ref": "alsoBought", "value": "0" }
+                        { 
+                            "id": "alsoBought", 
+                            "value": "0"
+                        }
                     ]
                 }
             },
@@ -898,10 +838,31 @@ Create new Algorithm.
             "name": "Algorithm 3",
             "class": "ProductSearch",
             "config": {
-                "must": ["categoryMatchCurrentCategory", "productIsCurrentProduct"],
-                "mustNot": ["anotherAlgorithmFilter"],
+                "must": [
+                    {
+                        "id": "categoryMatchCurrentCategory"
+                    },
+                    {
+                        "id": "productIsCurrentProduct"
+                    },
+                    {
+                        "id": "myCustomSignal",
+                        "name": "My custom title",
+                        "config": {
+                            "myField": {"$lt": "db.products.inBasket"}
+                        }
+                    }
+                ],
+                "mustNot": [
+                    {
+                        "id": "anotherAlgorithmFilter"
+                    }
+                ],
                 "should": [
-                    { "ref": "alsoBought", "value": "0" }
+                    { 
+                        "id": "alsoBought", 
+                        "value": "0"
+                    }
                 ]
             } 
         }
@@ -913,10 +874,31 @@ Create new Algorithm.
             "name": "Algorithm 3",
             "class": "ProductSearch",
             "config": {
-                "must": ["categoryMatchCurrentCategory", "productIsCurrentProduct"],
-                "mustNot": ["anotherAlgorithmFilter"],
+                "must": [
+                    {
+                        "id": "categoryMatchCurrentCategory"
+                    },
+                    {
+                        "id": "productIsCurrentProduct"
+                    },
+                    {
+                        "id": "myCustomSignal",
+                        "name": "My custom title",
+                        "config": {
+                            "myField": {"$lt": "db.products.inBasket"}
+                        }
+                    }
+                ],
+                "mustNot": [
+                    {
+                        "id": "anotherAlgorithmFilter"
+                    }
+                ],
                 "should": [
-                    { "ref": "alsoBought", "value": "0" }
+                    { 
+                        "id": "alsoBought", 
+                        "value": "0"
+                    }
                 ]
             } 
         }
@@ -938,10 +920,31 @@ Retrieve an Algorithm.
             "name": "Algorithm 3",
             "class": "ProductSearch",
             "config": {
-                "must": ["categoryMatchCurrentCategory", "productIsCurrentProduct"],
-                "mustNot": ["anotherAlgorithmFilter"],
+                "must": [
+                    {
+                        "id": "categoryMatchCurrentCategory"
+                    },
+                    {
+                        "id": "productIsCurrentProduct"
+                    },
+                    {
+                        "id": "myCustomSignal",
+                        "name": "My custom title",
+                        "config": {
+                            "myField": {"$lt": "db.products.inBasket"}
+                        }
+                    }
+                ],
+                "mustNot": [
+                    {
+                        "id": "anotherAlgorithmFilter"
+                    }
+                ],
                 "should": [
-                    { "ref": "alsoBought", "value": "0" }
+                    { 
+                        "id": "alsoBought", 
+                        "value": "0"
+                    }
                 ]
             } 
         }
@@ -955,10 +958,31 @@ Update an Algorithm.
             "name": "Algorithm 3",
             "class": "ProductSearch",
             "config": {
-                "must": ["categoryMatchCurrentCategory", "productIsCurrentProduct"],
-                "mustNot": ["anotherAlgorithmFilter"],
+                "must": [
+                    {
+                        "id": "categoryMatchCurrentCategory"
+                    },
+                    {
+                        "id": "productIsCurrentProduct"
+                    },
+                    {
+                        "id": "myCustomSignal",
+                        "name": "My custom title",
+                        "config": {
+                            "myField": {"$lt": "db.products.inBasket"}
+                        }
+                    }
+                ],
+                "mustNot": [
+                    {
+                        "id": "anotherAlgorithmFilter"
+                    }
+                ],
                 "should": [
-                    { "ref": "alsoBought", "value": "0" }
+                    { 
+                        "id": "alsoBought", 
+                        "value": "0"
+                    }
                 ]
             } 
         }
@@ -970,10 +994,31 @@ Update an Algorithm.
             "name": "Algorithm 3",
             "class": "ProductSearch",
             "config": {
-                "must": ["categoryMatchCurrentCategory", "productIsCurrentProduct"],
-                "mustNot": ["anotherAlgorithmFilter"],
+                "must": [
+                    {
+                        "id": "categoryMatchCurrentCategory"
+                    },
+                    {
+                        "id": "productIsCurrentProduct"
+                    },
+                    {
+                        "id": "myCustomSignal",
+                        "name": "My custom title",
+                        "config": {
+                            "myField": {"$lt": "db.products.inBasket"}
+                        }
+                    }
+                ],
+                "mustNot": [
+                    {
+                        "id": "anotherAlgorithmFilter"
+                    }
+                ],
                 "should": [
-                    { "ref": "alsoBought", "value": "0" }
+                    { 
+                        "id": "alsoBought", 
+                        "value": "0"
+                    }
                 ]
             } 
         }
