@@ -57,7 +57,7 @@ Error responses (status 4xx/ 5xx) contain a detailed description of the error(s)
 }
 ```
 
-# Group User
+# Group Users
 The users are owners of accounts. Each users have unique credentials to access in system.
 
 TODO - Dodělat, představa je taková, že requesty budeme jen přeposílat persoo-config-unitě. V reálu budou nejspíš metody trochu jiné, nebude to umět tolik, ale zhruba to tak bude.
@@ -99,7 +99,7 @@ Delete cookie with token.
     
             Set-Cookie:  expires=Thu, 01 Jan 1970 00:00:01 GMT persooAuthToken={token};
 
-## Users [/users/{username}]
+## User [/users/{username}]
 A user's details.
 
 + Parameters
@@ -140,22 +140,28 @@ Change password by username or 'current' for currently logged user.
 User Account is start point in Persoo. Every User can have many Account and each account have own Scenarios and Algorithms
 (Every account have unique ID = apikey)
 
-## Account Collection [/accounts]
+## Accounts list [/accounts]
 ### listAccounts [GET]
 Složitější metoda, potřebuje to klient - možná z toho uděláme nějakou obecnou metodu na získání všech informací důležitých pro uživatele globálně.
 
 + Response 200 (application/json)
 
-        [
-            {
-                "id": "53ba7fc872530e577f35c699", 
-                "name": "www.persoo.cz"
-            },
-            {
-                "id": "53c3dbdd72530e32f7503347", 
-                "name": "demo.persoo.cz"
-            }
-        ]
+    + Headers
+    
+            Access-Control-Allow-Credentials: true
+            
+    + Body
+    
+            [
+                {
+                    "id": "er5orpfmme7vike5rumo19hl", 
+                    "name": "www.persoo.cz"
+                },
+                {
+                    "id": "53c3dbdd72530e32f7503347", 
+                    "name": "demo.persoo.cz"
+                }
+            ]
 
 ### newAccount [POST]
 Create a new account.
@@ -179,15 +185,6 @@ A single account object with basic data
 
     + account_id (required, string, `53c3dbdd72585e32f7503347`) ... to which do you want to perform actions
 
-### getAccount [GET]
-Retrieve an account informations
-+ Response 200 (application/json)
-
-        {
-            "id": "53c3dbdd72585e32f7508888",
-            "name": "My account"
-        }
-
 ### deleteAccount [DELETE]
 Delete the account.
 + Response 204
@@ -197,52 +194,142 @@ Delete the account.
         { 
             "error": "Account not found"
         }
+        
+## Deploy [/accounts/{account_id}/deploy]
 
-## Account settings [/accounts/{account_id}/settings]
++ Parameters
+    + account_id (required, string, `53c3dbdd72585e32f7503347`) ... to which do you want to perform actions
+
+### deploy [POST]
+Deploy account
+
++ Response 204
+
+
+# Group Settings
+
 A single account settings
+ * event processing - you can map fields comming from dataLayer in page to required format, adjust parameters for algorithms in event processing, ....
+ * credentials - if you want to access Persoo RTP API for user identification, you need to know authentication key.
+ * integrations - set Google Analytics version, etc.
+ * customDataflow - (advanced feature), i.e. to import transactions from department stores,...
+
+## Settings [/accounts/{account_id}/settings]
 
 + Parameters
 
     + account_id (required, string, `53c3dbdd72585e32f7503347`) ... to which do you want to perform actions
 
 
-### getAccountSettings [GET]
+### getSettings [GET]
 Retrieve an account settings.
 + Response 200 (application/json)
 
         {   
             "accountId": "53c3dbdd72585e32f7508888",
-            "name": "MyAccount"
+            "name": "MyAccount",
+            "eventProcessing": {
+                "javascriptPreprocessor": "function process(io) { /* modify io.session.lastEvent*/ }",
+                "affinityThresholds": {
+                    "absoluteThreshold" : 0.5,
+                    "relativeThreshold" : 0.05,
+                    "halfTime" : 172800000,
+                    "halfValueCount" : 0
+                },
+                "affinityShortTermThresholds": {
+                    "absoluteThreshold" : 0.5,
+                    "relativeThreshold" : 0.05,
+                    "halfTime" : 172800000,
+                    "halfValueCount" : 2
+                }
+            },
+            "credentials": {
+                "rtpAuthenticationKey": "secret9ed09dce2e5feb5b5f82e3976b"
+            },
+            "integrations": {
+                "googleAnalytics": {
+                    "version": "_gaq"
+                }
+            },
+            "customDataflows": {"inJSON":"format"}
         }
         
         
-### updateAccountSettings [PUT]
+### updateSettings [PUT]
 Update the account settings.
 + Request (application/json)
 
-        {
+        {   
             "accountId": "53c3dbdd72585e32f7508888",
-            "name": "My Account Name"
+            "name": "MyAccount",
+            "eventProcessing": {
+                "javascriptPreprocessor": "function process(io) { /* modify io.session.lastEvent*/ }",
+                "affinityThresholds": {
+                    "absoluteThreshold" : 0.5,
+                    "relativeThreshold" : 0.05,
+                    "halfTime" : 172800000,
+                    "halfValueCount" : 0
+                },
+                "affinityShortTermThresholds": {
+                    "absoluteThreshold" : 0.5,
+                    "relativeThreshold" : 0.05,
+                    "halfTime" : 172800000,
+                    "halfValueCount" : 2
+                }
+            },
+            "credentials": {
+                "rtpAuthenticationKey": "secret9ed09dce2e5feb5b5f82e3976b"
+            },
+            "integrations": {
+                "googleAnalytics": {
+                    "version": "_gaq"
+                }
+            },
+            "customDataflows": {"inJSON":"format"}
         }
         
 + Response 200 (application/json)
 
-        {
+        {   
             "accountId": "53c3dbdd72585e32f7508888",
-            "name": "My Account Name"
+            "name": "MyAccount",
+            "eventProcessing": {
+                "javascriptPreprocessor": "function process(io) { /* modify io.session.lastEvent*/ }",
+                "affinityThresholds": {
+                    "absoluteThreshold" : 0.5,
+                    "relativeThreshold" : 0.05,
+                    "halfTime" : 172800000,
+                    "halfValueCount" : 0
+                },
+                "affinityShortTermThresholds": {
+                    "absoluteThreshold" : 0.5,
+                    "relativeThreshold" : 0.05,
+                    "halfTime" : 172800000,
+                    "halfValueCount" : 2
+                }
+            },
+            "credentials": {
+                "rtpAuthenticationKey": "secret9ed09dce2e5feb5b5f82e3976b"
+            },
+            "integrations": {
+                "googleAnalytics": {
+                    "version": "_gaq"
+                }
+            },
+            "customDataflows": {"inJSON":"format"}
         }
 
-
 # Group Imports
-Importing data (items, categories, ...) from external URLs.
+Importing data (products, categories, ...) from external URLs. You can also run imports manually
+or see import status.
 
-## Import Settings Collection [/accounts/{account_id}/imports]
+## Imports list [/accounts/{account_id}/imports]
 
 + Parameters
 
     + account_id (required, string, `53c3dbdd72585e32f7503347`) ... to which do you want to perform actions
 
-### getImportSettings [GET]
+### listImports [GET]
 Retrieve import settings for all available imports.
 
 + Response 200 (application/json)
@@ -251,6 +338,7 @@ Retrieve import settings for all available imports.
             {
                 "isActive": true,
                 "sourceURL": "http://eshop.com/export/xml/persoo.xml",
+                "type": "xmlHeurekaProductFeed",
                 "fieldsMapping" : {
                     "id" : {
                             "sourceField" : "id",
@@ -284,14 +372,14 @@ Retrieve import settings for all available imports.
         ]
 
 
-## Import Settings [/accounts/{account_id}/imports/{import_id}]
+## Import [/accounts/{account_id}/imports/{import_id}]
 
 + Parameters
 
     + account_id (required, string, `53c3dbdd72585e32f7503347`) ... to which do you want to perform actions
     + import_id (required, string, `products`) ... either "products" or "categories"
 
-### getImportSetting [GET]
+### getImport [GET]
 Retrieve import settings.
 
 + Response 200 (application/json)
@@ -300,6 +388,7 @@ Retrieve import settings.
             "id": "products",
             "isActive": true,
             "sourceURL": "http://eshop.com/export/xml/persoo.xml",
+            "type": "xmlHeurekaProductFeed",
             "fieldsMapping" : {
                 "id" : {
                         "sourceField" : "id",
@@ -331,7 +420,7 @@ Retrieve import settings.
             "javascriptPreprocessor": "function process(item) { return item; }"
         }
 
-### updateImportSetting [PUT]
+### updateImport [PUT]
 Update import settings.
 + Request (application/json)
 
@@ -339,6 +428,7 @@ Update import settings.
             "id": "products",
             "isActive": true,
             "sourceURL": "http://eshop2.com/export/xml/persoo.xml",
+            "type": "xmlHeurekaProductFeed",
             "fieldsMapping" : {
                 "id" : {
                         "sourceField" : "id",
@@ -376,6 +466,7 @@ Update import settings.
             "id": "products",
             "isActive": true,
             "sourceURL": "http://eshop2.com/export/xml/persoo.xml",
+            "type": "xmlHeurekaProductFeed",
             "fieldsMapping" : {
                 "id" : {
                         "sourceField" : "id",
@@ -407,7 +498,7 @@ Update import settings.
             "javascriptPreprocessor": "function process(item) { return item; }"
         }
 
-## Run Import [/accounts/{account_id}/imports/{import_id}/run]
+## Run import [/accounts/{account_id}/imports/{import_id}/run]
 
 + Parameters
     + account_id (required, string, `53c3dbdd72585e32f7503347`) ... to which do you want to perform actions
@@ -417,18 +508,18 @@ Update import settings.
 Run import.
 
 + Response 200 (application/json)
-    
+
         {
             "id": "209e6be2-8488-4e99-ab9f-3620848cf1d2"
         }
 
-## Get Import Status [/accounts/{account_id}/imports/{import_id}/status]
+## Get import status [/accounts/{account_id}/imports/{import_id}/status]
 
 + Parameters
     + account_id (required, string, `53c3dbdd72585e32f7503347`) ... to which do you want to perform actions
     + import_id (required, string, `products`) ... either "products" or "categories"
 
-### ImportStatus [GET]
+### getImportStatus [GET]
 Get import status:
 * status is 
  * "green" - last import was OK, 
@@ -436,7 +527,7 @@ Get import status:
  * "red" - 2 or more last imports had problems
 * lastSuccessTimestamp - timestamp of last successful import
 * lastSuccessDate - human readable date of last successful import
-* history of at most 10 imports with detailed log message
+* history of at most 10 imports with a detailed log
 
 + Response 200 (application/json)
 
@@ -482,84 +573,178 @@ Get import status:
 # Group Scenarios
 Scenarios is set of products ids composed of several algorithms.
 
-## Scenarios Collection [/accounts/{account_id}/recommendations/scenarios]
+## Scenarios list [/accounts/{account_id}/recommendations/scenarios]
 
 + Parameters
 
     + account_id (required, string, `53c3dbdd72585e32f7503347`) ... to which do you want to perform actions
 
 ### listRecommendationScenarios [GET]
-List all Scenarios.
+List all scenarios.
 
 + Response 200 (application/json)
 
         [
             {
-                "id": "53c3dbdd72585e32f7503347",
-                "name": "Best Sellers",
+                "id": "3707e9f7_c4d5_46a7_9c32_be3fac45caad",
                 "isActive": true,
+                "name": "Homepage - recommended news",
                 "variants": [
                     {
-                        "id": "0",
-                        "name": "<variant name>",
                         "condition": "true",
-                        "template": "<html template>",
+                        "id": "0",
                         "location": {
-                             "selectorClass": "query",
-                             "selector": "#tab .products",
-                             "mode": "replace",
-                             "onPageType": "Category",
-                             "onURL": "<regExp>"
+                            "mode": "replace",
+                            "onPageType": "Homepage",
+                            "onURL": "",
+                            "selector": "#box1",
+                            "selectorClass": "query"
                         },
                         "logic": {
                             "count": 10,
                             "fallbacks": [
                                 {
-                                   "ref": "53c3dbdd72585e32f7504477"
-                                },
-                                {
-                                   "ref": "53c3drdd72585e32f7508521"
+                                    "ref": "53c3dbdd72585e32f7504477"
                                 }
                             ]
-                        }
+                        },
+                        "name": "<variant name>",
+                        "template": "<% /* var products = products_alternatives; */ %>\n<div class=\"persooRecommendation\">\n    <h2>Recommendation name</h2>\n    <div>\n    <% for(i=0; i < products.length && i < 8;i++){ %>\n            <div class=\"product\" style=\"width:180px; height:250px; float: left;\">\n                <a href=\"<%= products[i].link %>\">\n                        <img src=\"<%= products[i].imageLink %>\" alt=\"<%= products[i].title %>\" style=\"max-height:150px;max-width:150px;\">\n                        <span class=\"title\"><%= products[i].title %> KÄ</span><br>\n                        <span class=\"price\"><%= products[i].price %> KÄ</span>\n                </a>\n            </div>\n    <% } %>\n    </div>\n</div>"
                     }
                 ]
             },
             {
-                "id": "53c3drdd72585e32f7504147",
-                "name": "Similar products",
+                "id": "e55ca9f9_c13f_4b49_b5cf_14cc2449154f",
                 "isActive": true,
+                "name": "Homepage - recommendation",
                 "variants": [
                     {
-                        "id": "0",
-                        "name": "<variant name>",
                         "condition": "true",
-                        "template": "<html template>",
+                        "id": "0",
                         "location": {
-                             "selectorClass": "query",
-                             "selector": "#tab .products",
-                             "mode": "replace",
-                             "onPageType": "Category",
-                             "onURL": "<regExp>"
+                            "mode": "replace",
+                            "onPageType": "Homepage",
+                            "onURL": "",
+                            "selector": "#box4",
+                            "selectorClass": "query"
+                        },
+                        "logic": {
+                            "count": 10,
+                            "fallbacks": []
+                        },
+                        "name": "<variant name>",
+                        "template": "<html template>"
+                    }
+                ]
+            },
+            {
+                "id": "726e6cb8_67a2_4099_a396_35caf68c810f",
+                "isActive": true,
+                "name": "Detail - alternatives",
+                "variants": [
+                    {
+                        "condition": "true",
+                        "id": "0",
+                        "location": {
+                            "mode": "replace",
+                            "onPageType": "Product",
+                            "onURL": "",
+                            "selector": "#box2",
+                            "selectorClass": "query"
                         },
                         "logic": {
                             "count": 10,
                             "fallbacks": [
                                 {
-                                   "ref": "53c3dbdd72585e32f7504477"
-                                },
-                                {
-                                   "ref": "53c3drdd72585e32f7508521"
+                                    "ref": "53c3dbdd72585e32f7504477"
                                 }
                             ]
-                        }
+                        },
+                        "name": "<variant name>",
+                        "template": "<html template>"
+                    }
+                ]
+            },
+            {
+                "id": "ad22d04e_5c68_452d_8a3e_c40396c2e3bb",
+                "isActive": true,
+                "name": "Detail - crosssell",
+                "variants": [
+                    {
+                        "condition": "true",
+                        "id": "0",
+                        "location": {
+                            "mode": "replace",
+                            "onPageType": "Product",
+                            "onURL": "",
+                            "selector": "#containerId",
+                            "selectorClass": "query"
+                        },
+                        "logic": {
+                            "count": 10,
+                            "fallbacks": []
+                        },
+                        "name": "<variant name>",
+                        "template": "<html template>"
+                    }
+                ]
+            },
+            {
+                "id": "88c8a548_9cac_44fe_9a3f_7e5a157e537d",
+                "isActive": true,
+                "name": "Basket - crosssell",
+                "variants": [
+                    {
+                        "condition": "true",
+                        "id": "0",
+                        "location": {
+                            "mode": "replace",
+                            "onPageType": "Category",
+                            "onURL": "",
+                            "selector": "#box3",
+                            "selectorClass": "query"
+                        },
+                        "logic": {
+                            "count": 10,
+                            "fallbacks": []
+                        },
+                        "name": "<variant name>",
+                        "template": "<html template>"
+                    }
+                ]
+            },
+            {
+                "id": "SCE123",
+                "isActive": true,
+                "name": "Page footer - last viewed products",
+                "variants": [
+                    {
+                        "condition": "true",
+                        "id": "default",
+                        "location": {
+                            "mode": "replace",
+                            "onPageType": "category",
+                            "onURL": ".*",
+                            "selector": "#tab .products",
+                            "selectorClass": "query"
+                        },
+                        "logic": {
+                            "count": 4,
+                            "fallbacks": [
+                                {
+                                    "ref": "53c3dbdd72585e32f7504477"
+                                }
+                            ]
+                        },
+                        "name": "default",
+                        "template": "<% /* var products = products_alternatives; */ %>\n<div class=\"persooRecommendation\">\n    <h2>Recommendation name</h2>\n    <div>\n    <% for(i=0; i < products.length && i < 8;i++){ %>\n            <div class=\"product\" style=\"width:180px; height:250px; float: left;\">\n                <a href=\"<%= products[i].link %>\">\n                        <img src=\"<%= products[i].imageLink %>\" alt=\"<%= products[i].title %>\" style=\"max-height:150px;max-width:150px;\">\n                        <span class=\"title\"><%= products[i].title %> KÃÂÃÂ</span><br>\n                        <span class=\"price\"><%= products[i].price %> KÃÂÃÂ</span>\n                </a>\n            </div>\n    <% } %>\n    </div>\n</div>"
                     }
                 ]
             }
         ]
 
 ### newRecommendationScenario [POST]
-Create new Scenario.
+Create a new scenario.
 + Request (application/json)
 
         { 
@@ -745,6 +930,16 @@ JSON may contain field "id", which is ignored. ID is taken from request pathname
                 }
             ]
         }
+        
++ Response 400 (application/json)
+
+        {
+            "errors": [
+                {
+                    "message": "Internal server error (ID f6429320a53711e4b0780002a5d5c51b)."
+                }
+            ]
+        }
 
 
 ### deleteRecommendationScenario [DELETE]
@@ -763,14 +958,14 @@ Delete a scenario.
 # Group Algorithms
 Algorithms is base recommendation computation logic.
 
-## Algorithms Collection [/accounts/{account_id}/recommendations/algorithms]
+## Algorithms list [/accounts/{account_id}/recommendations/algorithms]
 
 + Parameters
 
     + account_id (required, string, `53c3dbdd72585e32f7503347`) ... to which do you want to perform actions
 
 ### listRecommendationAlgorithms [GET]
-List all Algorithms.
+List all algorithms.
 + Response 200 (application/json)
 
         [
@@ -781,7 +976,7 @@ List all Algorithms.
                 "config": {
                     "must": [
                         {
-                            "id": "categoryMatchCurrentCategory"
+                            "id": "categoryIsCurrentCategory"
                         },
                         {
                             "id": "productIsCurrentProduct"
@@ -796,13 +991,13 @@ List all Algorithms.
                     ],
                     "mustNot": [
                         {
-                            "id": "anotherAlgorithmFilter"
+                            "id": "productIsInBasket"
                         }
                     ],
                     "should": [
                         { 
-                            "id": "alsoBought", 
-                            "value": "0"
+                            "id": "productAlsoViewedWithCurrentProduct", 
+                            "value": 0
                         }
                     ]
                 }
@@ -831,7 +1026,7 @@ List all Algorithms.
         ]
 
 ### newRecommendationAlgorithm [POST]
-Create new Algorithm.
+Create a new algorithm.
 + Request (application/json)
 
         { 
@@ -840,7 +1035,7 @@ Create new Algorithm.
             "config": {
                 "must": [
                     {
-                        "id": "categoryMatchCurrentCategory"
+                        "id": "categoryIsCurrentCategory"
                     },
                     {
                         "id": "productIsCurrentProduct"
@@ -855,13 +1050,13 @@ Create new Algorithm.
                 ],
                 "mustNot": [
                     {
-                        "id": "anotherAlgorithmFilter"
+                        "id": "productIsInBasket"
                     }
                 ],
                 "should": [
                     { 
-                        "id": "alsoBought", 
-                        "value": "0"
+                        "id": "productAlsoViewedWithCurrentProduct", 
+                        "value": 0
                     }
                 ]
             } 
@@ -876,7 +1071,7 @@ Create new Algorithm.
             "config": {
                 "must": [
                     {
-                        "id": "categoryMatchCurrentCategory"
+                        "id": "categoryIsCurrentCategory"
                     },
                     {
                         "id": "productIsCurrentProduct"
@@ -891,20 +1086,20 @@ Create new Algorithm.
                 ],
                 "mustNot": [
                     {
-                        "id": "anotherAlgorithmFilter"
+                        "id": "productIsInBasket"
                     }
                 ],
                 "should": [
                     { 
-                        "id": "alsoBought", 
-                        "value": "0"
+                        "id": "productAlsoViewedWithCurrentProduct", 
+                        "value": 0
                     }
                 ]
             } 
         }
 
 ## Algorithm [/accounts/{account_id}/recommendations/algorithms/{algorithm_id}]
-A single Algorithm object with all its details
+A single algorithm object with all its details
 
 + Parameters
 
@@ -912,7 +1107,7 @@ A single Algorithm object with all its details
     + algorithm_id (required, string, `53c3dbdd72585e32f7503347`) ... Hash string  `id` of the Algorithm to perform action with.
 
 ### getRecommendationAlgorithm [GET]
-Retrieve an Algorithm.
+Retrieve an algorithm.
 + Response 200 (application/json)
 
         { 
@@ -922,7 +1117,7 @@ Retrieve an Algorithm.
             "config": {
                 "must": [
                     {
-                        "id": "categoryMatchCurrentCategory"
+                        "id": "categoryIsCurrentCategory"
                     },
                     {
                         "id": "productIsCurrentProduct"
@@ -937,20 +1132,20 @@ Retrieve an Algorithm.
                 ],
                 "mustNot": [
                     {
-                        "id": "anotherAlgorithmFilter"
+                        "id": "productIsInBasket"
                     }
                 ],
                 "should": [
                     { 
-                        "id": "alsoBought", 
-                        "value": "0"
+                        "id": "productAlsoViewedWithCurrentProduct", 
+                        "value": 0
                     }
                 ]
             } 
         }
 
 ### updateRecommendationAlgorithm [PUT]
-Update an Algorithm.
+Update an algorithm.
 + Request (application/json)
 
         { 
@@ -960,7 +1155,7 @@ Update an Algorithm.
             "config": {
                 "must": [
                     {
-                        "id": "categoryMatchCurrentCategory"
+                        "id": "categoryIsCurrentCategory"
                     },
                     {
                         "id": "productIsCurrentProduct"
@@ -975,13 +1170,13 @@ Update an Algorithm.
                 ],
                 "mustNot": [
                     {
-                        "id": "anotherAlgorithmFilter"
+                        "id": "productIsInBasket"
                     }
                 ],
                 "should": [
                     { 
-                        "id": "alsoBought", 
-                        "value": "0"
+                        "id": "productAlsoViewedWithCurrentProduct", 
+                        "value": 0
                     }
                 ]
             } 
@@ -996,7 +1191,7 @@ Update an Algorithm.
             "config": {
                 "must": [
                     {
-                        "id": "categoryMatchCurrentCategory"
+                        "id": "categoryIsCurrentCategory"
                     },
                     {
                         "id": "productIsCurrentProduct"
@@ -1011,24 +1206,28 @@ Update an Algorithm.
                 ],
                 "mustNot": [
                     {
-                        "id": "anotherAlgorithmFilter"
+                        "id": "productIsInBasket"
                     }
                 ],
                 "should": [
                     { 
-                        "id": "alsoBought", 
-                        "value": "0"
+                        "id": "productAlsoViewedWithCurrentProduct", 
+                        "value": 0
                     }
                 ]
             } 
         }
 
 ### deleteRecommendationAlgorithm [DELETE]
-Delete an Algorithm.
+Delete an algorithm.
 + Response 200
 
 + Response 404
 
-        { 
-            "error": "Resource not found"
-        }
+        {
+            "errors": [
+                {
+                    "message": "Resource not found."
+                }
+            ]
+        }        
