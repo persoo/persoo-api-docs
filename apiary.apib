@@ -23,7 +23,7 @@ API for configuring Persoo accounts.
 
 ## Error reporting
 
-Error responses (status 4xx/ 5xx) contain a detailed description of the error(s) in the following manner:
+Error responses (status 4xx/5xx) contain a detailed description of the error(s) in the following manner:
 ```
 {
     "errors": [
@@ -225,6 +225,8 @@ Reset the current state to the last stable state (After this operation, the test
 ### getStatistics [GET]
 Get daily statistics for an account.
 
+If a metric isn't available for a particular day, `null` is used instead of a number value.
+
 + Response 200
 
         {
@@ -242,26 +244,26 @@ Get daily statistics for an account.
             ],
             "metrics": {
                 "clicks": [
-                    1841,
-                    5822,
+                    null,
+                    null,
                     816,
                     3266
                 ],
                 "impressions": [
-                    8914,
-                    6056,
+                    null,
+                    null,
                     1679,
                     4590
                 ],
                 "someOtherMetric1": [
-                    0.9065895228061414,
-                    0.14564525700787434,
+                    null,
+                    null,
                     0.648905714812609,
                     0.07806533989738285
                 ],
                 "someOtherMetric2": [
-                    -322,
-                    255,
+                    null,
+                    null,
                     783,
                     412
                 ]
@@ -1058,8 +1060,10 @@ Delete a scenario.
     + timestamp_from (required, long, `43932000`) ... start the statistics with the day containing this timestamp (in UTC)
     + timestamp_to (required, long, `300000000`) ... end the statistics with the day containing this timestamp (in UTC)
 
-### getStatistics [GET]
+### getRecommendationScenarioStatistics [GET]
 Get daily statistics for a scenario.
+
+If a metric isn't available for a particular day, `null` is used instead of a number value.
 
 + Response 200
 
@@ -1078,26 +1082,26 @@ Get daily statistics for a scenario.
             ],
             "metrics": {
                 "clicks": [
-                    827,
-                    1512,
+                    null,
+                    null,
                     799,
                     950
                 ],
                 "impressions": [
-                    1823,
-                    3658,
+                    null,
+                    null,
                     3251,
                     5428
                 ],
                 "someOtherMetric1": [
-                    0.09429825974311479,
-                    0.5316672876692192,
+                    null,
+                    null,
                     0.9095407241692913,
                     0.40087619631713756
                 ],
                 "someOtherMetric2": [
-                    915,
-                    541,
+                    null,
+                    null,
                     -216,
                     -51
                 ]
@@ -1106,26 +1110,26 @@ Get daily statistics for a scenario.
                 "0": {
                     "metrics": {
                         "clicks": [
-                            1525,
-                            7386,
+                            null,
+                            null,
                             1971,
                             1676
                         ],
                         "impressions": [
-                            4618,
-                            9119,
+                            null,
+                            null,
                             3088,
                             1773
                         ],
                         "someOtherMetric1": [
-                            0.6640516039075319,
-                            0.4128030169422324,
+                            null,
+                            null,
                             0.49225843350585785,
                             0.562467127770878
                         ],
                         "someOtherMetric2": [
-                            -121,
-                            426,
+                            null,
+                            null,
                             422,
                             806
                         ]
@@ -1671,8 +1675,10 @@ Delete an AB test.
     + timestamp_from (required, long, `43932000`) ... start the statistics with the day containing this timestamp (in UTC)
     + timestamp_to (required, long, `300000000`) ... end the statistics with the day containing this timestamp (in UTC)
 
-### getStatistics [GET]
+### getABTestStatistics [GET]
 Get daily statistics for an AB test.
+
+If a metric isn't available for a particular day, `null` is used instead of a number value.
 
 + Response 200
 
@@ -1781,26 +1787,26 @@ Get daily statistics for an AB test.
                 "C": {
                     "metrics": {
                         "clicks": [
-                            4544,
-                            1111,
+                            null,
+                            null,
                             67,
                             344
                         ],
                         "impressions": [
-                            9147,
-                            9785,
+                            null,
+                            null,
                             884,
                             722
                         ],
                         "someOtherMetric1": [
-                            0.42879058328463504,
-                            0.9594470561745583,
+                            null,
+                            null,
                             0.2757569125503805,
                             0.1403655010726006
                         ],
                         "someOtherMetric2": [
-                            332,
-                            196,
+                            null,
+                            null,
                             444,
                             -424
                         ]
