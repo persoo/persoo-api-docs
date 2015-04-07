@@ -1,7 +1,7 @@
 FORMAT: 1A
 HOST: http://api.persoo.cz
 
-# Persoo administration API
+# Persoo administration API (next)
 API for configuring Persoo accounts.
 
 ## Allowed HTTP requests
@@ -1065,6 +1065,8 @@ Get daily statistics for a scenario.
 
 If a metric isn't available for a particular day, `null` is used instead of a number value.
 
+Metrics in the root level are the metrics for all variants aggregated. (The values in the example below are random and don't respect this.)
+
 + Response 200
 
         {
@@ -1679,6 +1681,8 @@ Delete an AB test.
 Get daily statistics for an AB test.
 
 If a metric isn't available for a particular day, `null` is used instead of a number value.
+
+Metrics in the root level are the metrics for all variants aggregated. (The values in the example below are random and don't respect this.)
 
 + Response 200
 
