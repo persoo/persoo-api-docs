@@ -72,8 +72,8 @@ Token vyprší po půl hodině. S každým requestem může v odpovědi přijít
     + Body
     
             {
-                "username":"user@email.com",
-                "passwordHash":"passwordHash"
+                "username": "user@email.com",
+                "passwordHash": "passwordHash"
             }
 
 + Response 204
@@ -104,7 +104,7 @@ A user's details.
 
 + Parameters
 
-    + username (required, string, `test@email.com`) ... username to which do you want to perform actions. "current" can be used for the user logged in.
+    + username (required, string, `test@email.com`) ... name of the user to perform the action on. "current" can be used for the user logged in
 
 
 ### getUser [GET]
@@ -119,7 +119,7 @@ Retrieve the user details by username or 'current' for currently logged user.
 
 + Parameters
 
-    + username (required, string, `test@email.com`) ... username to which do you want to perform actions. "current" can be used for the user logged in.
+    + username (required, string, `test@email.com`) ... name of the user to perform the action on. "current" can be used for the user logged in
 
 
 ### changePassword [POST]
@@ -146,22 +146,16 @@ Složitější metoda, potřebuje to klient - možná z toho uděláme nějakou 
 
 + Response 200 (application/json)
 
-    + Headers
-    
-            Access-Control-Allow-Credentials: true
-            
-    + Body
-    
-            [
-                {
-                    "id": "er5orpfmme7vike5rumo19hl", 
-                    "name": "www.persoo.cz"
-                },
-                {
-                    "id": "53c3dbdd72530e32f7503347", 
-                    "name": "demo.persoo.cz"
-                }
-            ]
+        [
+            {
+                "id": "er5orpfmme7vike5rumo19hl", 
+                "name": "www.persoo.cz"
+            },
+            {
+                "id": "53c3dbdd72530e32f7503347", 
+                "name": "demo.persoo.cz"
+            }
+        ]
 
 ### newAccount [POST]
 Create a new account.
@@ -183,7 +177,7 @@ A single account object with basic data
 
 + Parameters
 
-    + account_id (required, string, `53c3dbdd72585e32f7503347`) ... to which do you want to perform actions
+    + account_id (required, string, `4959bc0ab5f24ac2a9688908adaf9e24`) ... ID of the account to perform the action on
 
 ### deleteAccount [DELETE]
 Delete the account.
@@ -192,18 +186,96 @@ Delete the account.
 + Response 404
 
         { 
-            "error": "Account not found"
+            "error": "Account not found."
         }
         
-## Deploy [/accounts/{account_id}/deploy]
+## Changes [/accounts/{account_id}/changes]
+
+Manipulation of the differences between the current state (test environment) and the last stable state (production environment).
 
 + Parameters
-    + account_id (required, string, `53c3dbdd72585e32f7503347`) ... to which do you want to perform actions
+    + account_id (required, string, `4959bc0ab5f24ac2a9688908adaf9e24`) ... ID of the account to perform the action on
+    
 
-### deploy [POST]
-Deploy account
+### getChanges [GET]
+Get description of the differences between the current and the last stable state.
+
++ Response 200 (application/json)
+
+        {
+            "modified": true
+        }
+
+### saveChanges [POST]
+Make the current state the new last stable state. (After this operation, the test and production environments are equal.)
 
 + Response 204
+
+### deleteChanges [DELETE]
+Reset the current state to the last stable state (After this operation, the test and production environments are equal.)
+
++ Response 204
+
+## Statistics [/accounts/{account_id}/statistics?timestampFrom={timestamp_from}&timestampTo={timestamp_to}]
+
++ Parameters
+    + timestamp_from (required, long, `43932000`) ... start the statistics with the day containing this timestamp (in UTC)
+    + timestamp_to (required, long, `300000000`) ... end the statistics with the day containing this timestamp (in UTC)
+
+### getStatistics [GET]
+Get daily statistics for an account.
+
++ Response 200
+
+        {
+            "timestamps": [
+                0,
+                86400000,
+                172800000,
+                259200000
+            ],
+            "dates": [
+                "1970-01-01",
+                "1970-01-02",
+                "1970-01-03",
+                "1970-01-04"
+            ],
+            "metrics": {
+                "clicks": [
+                    1841,
+                    5822,
+                    816,
+                    3266
+                ],
+                "impressions": [
+                    8914,
+                    6056,
+                    1679,
+                    4590
+                ],
+                "someOtherMetric1": [
+                    0.9065895228061414,
+                    0.14564525700787434,
+                    0.648905714812609,
+                    0.07806533989738285
+                ],
+                "someOtherMetric2": [
+                    -322,
+                    255,
+                    783,
+                    412
+                ]
+            },
+            "someField1": true,
+            "someField2": 1984,
+            "someField3": "stringValue"
+        }
+
++ Response 404
+
+        { 
+            "error": "Account not found."
+        }
 
 
 # Group Settings
@@ -218,7 +290,7 @@ A single account settings
 
 + Parameters
 
-    + account_id (required, string, `53c3dbdd72585e32f7503347`) ... to which do you want to perform actions
+    + account_id (required, string, `4959bc0ab5f24ac2a9688908adaf9e24`) ... ID of the account to perform the action on
 
 
 ### getSettings [GET]
@@ -243,12 +315,21 @@ Retrieve an account settings.
                     "halfValueCount" : 2
                 }
             },
+            "identifications": {
+                "idTypes": ["email", "userId"]
+            },
             "credentials": {
                 "rtpAuthenticationKey": "secret9ed09dce2e5feb5b5f82e3976b"
             },
             "integrations": {
                 "googleAnalytics": {
+                    "isActive": true,
                     "version": "_gaq"
+                },
+                "modgen": {
+                    "isActive": true,
+                    "database":"persoo",
+                    "hmacKey":"testKeytRsLbHLtNZYCFXhI9lUhbVZZwtPTJAfwVf5jdrPv1ylHverj0jYn3kzW7Vp"
                 }
             },
             "customDataflows": {"inJSON":"format"}
@@ -277,12 +358,21 @@ Update the account settings.
                     "halfValueCount" : 2
                 }
             },
+            "identifications": {
+                "idTypes": ["email", "userId"]
+            },
             "credentials": {
                 "rtpAuthenticationKey": "secret9ed09dce2e5feb5b5f82e3976b"
             },
             "integrations": {
                 "googleAnalytics": {
+                    "isActive": true,
                     "version": "_gaq"
+                },
+                "modgen": {
+                    "isActive": true,
+                    "database":"persoo",
+                    "hmacKey":"testKeytRsLbHLtNZYCFXhI9lUhbVZZwtPTJAfwVf5jdrPv1ylHverj0jYn3kzW7Vp"
                 }
             },
             "customDataflows": {"inJSON":"format"}
@@ -327,7 +417,7 @@ or see import status.
 
 + Parameters
 
-    + account_id (required, string, `53c3dbdd72585e32f7503347`) ... to which do you want to perform actions
+    + account_id (required, string, `4959bc0ab5f24ac2a9688908adaf9e24`) ... ID of the account to perform the action on
 
 ### listImports [GET]
 Retrieve import settings for all available imports.
@@ -376,7 +466,7 @@ Retrieve import settings for all available imports.
 
 + Parameters
 
-    + account_id (required, string, `53c3dbdd72585e32f7503347`) ... to which do you want to perform actions
+    + account_id (required, string, `4959bc0ab5f24ac2a9688908adaf9e24`) ... ID of the account to perform the action on
     + import_id (required, string, `products`) ... either "products" or "categories"
 
 ### getImport [GET]
@@ -501,7 +591,7 @@ Update import settings.
 ## Run import [/accounts/{account_id}/imports/{import_id}/run]
 
 + Parameters
-    + account_id (required, string, `53c3dbdd72585e32f7503347`) ... to which do you want to perform actions
+    + account_id (required, string, `4959bc0ab5f24ac2a9688908adaf9e24`) ... ID of the account to perform the action on
     + import_id (required, string, `products`) ... either "products" or "categories"
 
 ### runImport [POST]
@@ -516,7 +606,7 @@ Run import.
 ## Get import status [/accounts/{account_id}/imports/{import_id}/status]
 
 + Parameters
-    + account_id (required, string, `53c3dbdd72585e32f7503347`) ... to which do you want to perform actions
+    + account_id (required, string, `4959bc0ab5f24ac2a9688908adaf9e24`) ... ID of the account to perform the action on
     + import_id (required, string, `products`) ... either "products" or "categories"
 
 ### getImportStatus [GET]
@@ -577,7 +667,7 @@ Scenarios is set of products ids composed of several algorithms.
 
 + Parameters
 
-    + account_id (required, string, `53c3dbdd72585e32f7503347`) ... to which do you want to perform actions
+    + account_id (required, string, `4959bc0ab5f24ac2a9688908adaf9e24`) ... ID of the account to perform the action on
 
 ### listRecommendationScenarios [GET]
 List all scenarios.
@@ -586,25 +676,26 @@ List all scenarios.
 
         [
             {
-                "id": "3707e9f7_c4d5_46a7_9c32_be3fac45caad",
+                "id": "f9acbc0c49874d51bf6c70d46ef0cf4c",
                 "isActive": true,
                 "name": "Homepage - recommended news",
+                "location": {
+                    "mode": "replace",
+                    "onPageType": "Homepage",
+                    "onURL": "",
+                    "selector": "#box1",
+                    "selectorClass": "query"
+                },
                 "variants": [
                     {
                         "condition": "true",
                         "id": "0",
-                        "location": {
-                            "mode": "replace",
-                            "onPageType": "Homepage",
-                            "onURL": "",
-                            "selector": "#box1",
-                            "selectorClass": "query"
-                        },
                         "logic": {
                             "count": 10,
+                            "minCount": 3,
                             "fallbacks": [
                                 {
-                                    "ref": "53c3dbdd72585e32f7504477"
+                                    "ref": "6d29428f00c54fd1a02a22cafa989546"
                                 }
                             ]
                         },
@@ -614,22 +705,23 @@ List all scenarios.
                 ]
             },
             {
-                "id": "e55ca9f9_c13f_4b49_b5cf_14cc2449154f",
+                "id": "e23fc94bbcc947f5aa4872c5fc04966b",
                 "isActive": true,
                 "name": "Homepage - recommendation",
+                "location": {
+                    "mode": "replace",
+                    "onPageType": "Homepage",
+                    "onURL": "",
+                    "selector": "#box4",
+                    "selectorClass": "query"
+                },
                 "variants": [
                     {
                         "condition": "true",
                         "id": "0",
-                        "location": {
-                            "mode": "replace",
-                            "onPageType": "Homepage",
-                            "onURL": "",
-                            "selector": "#box4",
-                            "selectorClass": "query"
-                        },
                         "logic": {
                             "count": 10,
+                            "minCount": 3,
                             "fallbacks": []
                         },
                         "name": "<variant name>",
@@ -638,25 +730,26 @@ List all scenarios.
                 ]
             },
             {
-                "id": "726e6cb8_67a2_4099_a396_35caf68c810f",
+                "id": "2d5d11011d1444a29cc71d05e06f161d",
                 "isActive": true,
                 "name": "Detail - alternatives",
+                "location": {
+                    "mode": "replace",
+                    "onPageType": "Product",
+                    "onURL": "",
+                    "selector": "#box2",
+                    "selectorClass": "query"
+                },
                 "variants": [
                     {
                         "condition": "true",
                         "id": "0",
-                        "location": {
-                            "mode": "replace",
-                            "onPageType": "Product",
-                            "onURL": "",
-                            "selector": "#box2",
-                            "selectorClass": "query"
-                        },
                         "logic": {
                             "count": 10,
+                            "minCount": 3,
                             "fallbacks": [
                                 {
-                                    "ref": "53c3dbdd72585e32f7504477"
+                                    "ref": "6d29428f00c54fd1a02a22cafa989546"
                                 }
                             ]
                         },
@@ -666,22 +759,23 @@ List all scenarios.
                 ]
             },
             {
-                "id": "ad22d04e_5c68_452d_8a3e_c40396c2e3bb",
+                "id": "cf8920281e0341058474fb2dd47b4fff",
                 "isActive": true,
                 "name": "Detail - crosssell",
+                "location": {
+                    "mode": "replace",
+                    "onPageType": "Product",
+                    "onURL": "",
+                    "selector": "#containerId",
+                    "selectorClass": "query"
+                },
                 "variants": [
                     {
                         "condition": "true",
                         "id": "0",
-                        "location": {
-                            "mode": "replace",
-                            "onPageType": "Product",
-                            "onURL": "",
-                            "selector": "#containerId",
-                            "selectorClass": "query"
-                        },
                         "logic": {
                             "count": 10,
+                            "minCount": 3,
                             "fallbacks": []
                         },
                         "name": "<variant name>",
@@ -690,22 +784,23 @@ List all scenarios.
                 ]
             },
             {
-                "id": "88c8a548_9cac_44fe_9a3f_7e5a157e537d",
+                "id": "40aed0f057294e10bb6ba0fcb8f77050",
                 "isActive": true,
                 "name": "Basket - crosssell",
+                "location": {
+                    "mode": "replace",
+                    "onPageType": "Category",
+                    "onURL": "",
+                    "selector": "#box3",
+                    "selectorClass": "query"
+                },
                 "variants": [
                     {
                         "condition": "true",
                         "id": "0",
-                        "location": {
-                            "mode": "replace",
-                            "onPageType": "Category",
-                            "onURL": "",
-                            "selector": "#box3",
-                            "selectorClass": "query"
-                        },
                         "logic": {
                             "count": 10,
+                            "minCount": 3,
                             "fallbacks": []
                         },
                         "name": "<variant name>",
@@ -714,25 +809,26 @@ List all scenarios.
                 ]
             },
             {
-                "id": "SCE123",
+                "id": "239b49caad3946ecb295b96d4c972d9f",
                 "isActive": true,
                 "name": "Page footer - last viewed products",
+                "location": {
+                    "mode": "replace",
+                    "onPageType": "category",
+                    "onURL": ".*",
+                    "selector": "#tab .products",
+                    "selectorClass": "query"
+                },
                 "variants": [
                     {
                         "condition": "true",
                         "id": "default",
-                        "location": {
-                            "mode": "replace",
-                            "onPageType": "category",
-                            "onURL": ".*",
-                            "selector": "#tab .products",
-                            "selectorClass": "query"
-                        },
                         "logic": {
                             "count": 4,
+                            "minCount": 3,
                             "fallbacks": [
                                 {
-                                    "ref": "53c3dbdd72585e32f7504477"
+                                    "ref": "6d29428f00c54fd1a02a22cafa989546"
                                 }
                             ]
                         },
@@ -746,31 +842,32 @@ List all scenarios.
 ### newRecommendationScenario [POST]
 Create a new scenario.
 + Request (application/json)
-
-        { 
-            "name": "New Scenario", 
+        
+        {
+            "name": "Best Sellers",
             "isActive": true,
+            "location": {
+                "selectorClass": "query",
+                "selector": "#tab .products",
+                "mode": "replace",
+                "onPageType": "Category",
+                "onURL": "<regExp>"
+            },
             "variants": [
                 {
                     "id": "0",
                     "name": "<variant name>",
                     "condition": "true",
                     "template": "<html template>",
-                    "location": {
-                         "selectorClass": "query",
-                         "selector": "#tab .products",
-                         "mode": "replace",
-                         "onPageType": "Category",
-                         "onURL": "<regExp>"
-                    },
                     "logic": {
                         "count": 10,
+                        "minCount": 3,
                         "fallbacks": [
                             {
-                               "ref": "53c3dbdd72585e32f7504477"
+                               "ref": "6d29428f00c54fd1a02a22cafa989546"
                             },
                             {
-                               "ref": "53c3drdd72585e32f7508521"
+                               "ref": "b1bb18a943454f3f89357b56b284ef77"
                             }
                         ]
                     }
@@ -781,30 +878,31 @@ Create a new scenario.
 + Response 201 (application/json)
 
         {
-            "id": "53c3dbdd72585e32f7508888",
-            "name": "New Scenario", 
+            "id": "f9acbc0c49874d51bf6c70d46ef0cf4c",
+            "name": "Best Sellers",
             "isActive": true,
+            "location": {
+                "selectorClass": "query",
+                "selector": "#tab .products",
+                "mode": "replace",
+                "onPageType": "Category",
+                "onURL": "<regExp>"
+            },
             "variants": [
                 {
                     "id": "0",
                     "name": "<variant name>",
                     "condition": "true",
                     "template": "<html template>",
-                    "location": {
-                         "selectorClass": "query",
-                         "selector": "#tab .products",
-                         "mode": "replace",
-                         "onPageType": "Category",
-                         "onURL": "<regExp>"
-                    },
                     "logic": {
                         "count": 10,
+                        "minCount": 3,
                         "fallbacks": [
                             {
-                               "ref": "53c3dbdd72585e32f7504477"
+                               "ref": "6d29428f00c54fd1a02a22cafa989546"
                             },
                             {
-                               "ref": "53c3drdd72585e32f7508521"
+                               "ref": "b1bb18a943454f3f89357b56b284ef77"
                             }
                         ]
                     }
@@ -817,8 +915,8 @@ A single scenario object with all its details.
 
 + Parameters
 
-    + account_id (required, string, `53c3dbdd72585e32f7503347`) ... apiKey to which do you want to perform actions
-    + scenario_id (required, string, `53c3dbdd72585e32f7503347`) ... Hash string  `id` of the Scenario to perform action with.
+    + account_id (required, string, `4959bc0ab5f24ac2a9688908adaf9e24`) ... ID of the account to perform the action on
+    + scenario_id (required, string, `f9acbc0c49874d51bf6c70d46ef0cf4c`) ... ID of the scenario to perform the action on
 
 ### getRecommendationScenario [GET]
 Retrieve a scenario.
@@ -826,70 +924,75 @@ Retrieve a scenario.
 + Response 200 (application/json)
 
         {
-            "id": "53c3dbdd72585e32f7503347",
+            "id": "f9acbc0c49874d51bf6c70d46ef0cf4c",
             "name": "Best Sellers",
             "isActive": true,
+            "location": {
+                "selectorClass": "query",
+                "selector": "#tab .products",
+                "mode": "replace",
+                "onPageType": "Category",
+                "onURL": "<regExp>"
+            },
             "variants": [
                 {
                     "id": "0",
                     "name": "<variant name>",
                     "condition": "true",
                     "template": "<html template>",
-                    "location": {
-                         "selectorClass": "query",
-                         "selector": "#tab .products",
-                         "mode": "replace",
-                         "onPageType": "Category",
-                         "onURL": "<regExp>"
-                    },
                     "logic": {
                         "count": 10,
+                        "minCount": 3,
                         "fallbacks": [
                             {
-                               "ref": "53c3dbdd72585e32f7504477"
+                               "ref": "6d29428f00c54fd1a02a22cafa989546"
                             },
                             {
-                               "ref": "53c3drdd72585e32f7508521"
+                               "ref": "b1bb18a943454f3f89357b56b284ef77"
                             }
                         ]
                     }
                 }
             ]
         }
+        
++ Response 404
+
+        { 
+            "error": "Recommendation scenario not found."
+        }
 
 
 ### updateRecommendationScenario [PUT]
 Update a scenario.
 
-JSON may contain field "id", which is ignored. ID is taken from request pathname.
+The request may contain the field `id`, which is ignored; `scenario_id` is used instead.
 
 + Request (application/json)
 
         {
-            "id": "53c3dbdd72585e32f7503347",
-            "name": "Best Sellers",
-            "isActive": true,
+            "id": "anyString",
+            "name": "Best Selling Products",
+            "isActive": false,
+            "location": {
+                "selectorClass": "query",
+                "selector": "#tab .products",
+                "mode": "replace",
+                "onPageType": "Category",
+                "onURL": "<regExp>"
+            },
             "variants": [
                 {
                     "id": "0",
                     "name": "<variant name>",
                     "condition": "true",
                     "template": "<html template>",
-                    "location": {
-                         "selectorClass": "query",
-                         "selector": "#tab .products",
-                         "mode": "replace",
-                         "onPageType": "Category",
-                         "onURL": "<regExp>"
-                    },
                     "logic": {
                         "count": 10,
+                        "minCount": 3,
                         "fallbacks": [
                             {
-                               "ref": "53c3dbdd72585e32f7504477"
-                            },
-                            {
-                               "ref": "53c3drdd72585e32f7508521"
+                               "ref": "7854436109d24de1a332a14a59c5a5c7"
                             }
                         ]
                     }
@@ -900,30 +1003,28 @@ JSON may contain field "id", which is ignored. ID is taken from request pathname
 + Response 200 (application/json)
 
         {
-            "id": "53c3dbdd72585e32f7503347",
-            "name": "Best Sellers",
-            "isActive": true,
+            "id": "f9acbc0c49874d51bf6c70d46ef0cf4c",
+            "name": "Best Selling Products",
+            "isActive": false,
+            "location": {
+                "selectorClass": "query",
+                "selector": "#tab .products",
+                "mode": "replace",
+                "onPageType": "Category",
+                "onURL": "<regExp>"
+            },
             "variants": [
                 {
                     "id": "0",
                     "name": "<variant name>",
                     "condition": "true",
                     "template": "<html template>",
-                    "location": {
-                         "selectorClass": "query",
-                         "selector": "#tab .products",
-                         "mode": "replace",
-                         "onPageType": "Category",
-                         "onURL": "<regExp>"
-                    },
                     "logic": {
                         "count": 10,
+                        "minCount": 3,
                         "fallbacks": [
                             {
-                               "ref": "53c3dbdd72585e32f7504477"
-                            },
-                            {
-                               "ref": "53c3drdd72585e32f7508521"
+                               "ref": "7854436109d24de1a332a14a59c5a5c"7ss
                             }
                         ]
                     }
@@ -931,14 +1032,10 @@ JSON may contain field "id", which is ignored. ID is taken from request pathname
             ]
         }
         
-+ Response 400 (application/json)
++ Response 404
 
-        {
-            "errors": [
-                {
-                    "message": "Internal server error (ID f6429320a53711e4b0780002a5d5c51b)."
-                }
-            ]
+        { 
+            "error": "Recommendation scenario not found."
         }
 
 
@@ -950,10 +1047,104 @@ Delete a scenario.
 + Response 404
 
         { 
-            "error": "Resource not found"
+            "error": "Recommendation scenario not found."
+        }
+        
+## Statistics [/accounts/{account_id}/recommendations/scenarios/{scenario_id}/statistics?timestampFrom={timestamp_from}&timestampTo={timestamp_to}]
+
++ Parameters
+    + account_id (required, string, `4959bc0ab5f24ac2a9688908adaf9e24`) ... ID of the account to perform the action on
+    + scenario_id (required, string, `f9acbc0c49874d51bf6c70d46ef0cf4c`) ... ID of the scenario to get the statistics of
+    + timestamp_from (required, long, `43932000`) ... start the statistics with the day containing this timestamp (in UTC)
+    + timestamp_to (required, long, `300000000`) ... end the statistics with the day containing this timestamp (in UTC)
+
+### getStatistics [GET]
+Get daily statistics for a scenario.
+
++ Response 200
+
+        {
+            "timestamps": [
+                0,
+                86400000,
+                172800000,
+                259200000
+            ],
+            "dates": [
+                "1970-01-01",
+                "1970-01-02",
+                "1970-01-03",
+                "1970-01-04"
+            ],
+            "metrics": {
+                "clicks": [
+                    827,
+                    1512,
+                    799,
+                    950
+                ],
+                "impressions": [
+                    1823,
+                    3658,
+                    3251,
+                    5428
+                ],
+                "someOtherMetric1": [
+                    0.09429825974311479,
+                    0.5316672876692192,
+                    0.9095407241692913,
+                    0.40087619631713756
+                ],
+                "someOtherMetric2": [
+                    915,
+                    541,
+                    -216,
+                    -51
+                ]
+            },
+            "variants": {
+                "0": {
+                    "metrics": {
+                        "clicks": [
+                            1525,
+                            7386,
+                            1971,
+                            1676
+                        ],
+                        "impressions": [
+                            4618,
+                            9119,
+                            3088,
+                            1773
+                        ],
+                        "someOtherMetric1": [
+                            0.6640516039075319,
+                            0.4128030169422324,
+                            0.49225843350585785,
+                            0.562467127770878
+                        ],
+                        "someOtherMetric2": [
+                            -121,
+                            426,
+                            422,
+                            806
+                        ]
+                    },
+                    "someField1": true,
+                    "someField2": 1984,
+                    "someField3": "stringValue"
+                }
+            },
+            "someField1": true,
+            "someField2": 1984,
+            "someField3": "stringValue"
         }
 
++ Response 404
 
+        { 
+            "error": "Recommendation scenario not found."
+        }
 
 # Group Algorithms
 Algorithms is base recommendation computation logic.
@@ -962,7 +1153,7 @@ Algorithms is base recommendation computation logic.
 
 + Parameters
 
-    + account_id (required, string, `53c3dbdd72585e32f7503347`) ... to which do you want to perform actions
+    + account_id (required, string, `4959bc0ab5f24ac2a9688908adaf9e24`) ... ID of the account to perform the action on
 
 ### listRecommendationAlgorithms [GET]
 List all algorithms.
@@ -970,7 +1161,7 @@ List all algorithms.
 
         [
             {
-                "id": "53c3dbdd72585e32f7504477", 
+                "id": "6d29428f00c54fd1a02a22cafa989546", 
                 "name": "Algorithm 1", 
                 "class": "ProductSearch",
                 "config": {
@@ -1003,13 +1194,13 @@ List all algorithms.
                 }
             },
             {
-                "id": "53c3drdd72585e32f7508521", 
+                "id": "b1bb18a943454f3f89357b56b284ef77", 
                 "name": "Algorithm 2",
                 "class": "lastViewed",
                 "config": {}
             },
             {
-                "id": "6644drdd72585e32f7508885", 
+                "id": "7854436109d24de1a332a14a59c5a5c7", 
                 "name": "Algorithm 3",
                 "class": "custom",
                 "config": {
@@ -1018,10 +1209,22 @@ List all algorithms.
                 }
             },
             {
-                "id": "0124drdd72585e32f7501000", 
+                "id": "7981b9398bb44950a7dd0c063bd58785", 
                 "name": "Algorithm 4",
                 "class": "custom",
                 "config": {}
+            },
+            {
+                "id": "341d4a16646948bb9ed7444523196b1f", 
+                "name": "Algorithm Modgen",
+                "class": "Modgen",
+                "config": {
+                    "type": "userBased",
+                    "count": 20,
+                    "filterTemplate": "\"<%= lastEvent.categoryID %>\" in 'CATEGORIES'",
+                    "boostTemplate": "",
+                    "diversity": 0.0
+                }
             }
         ]
 
@@ -1030,7 +1233,7 @@ Create a new algorithm.
 + Request (application/json)
 
         { 
-            "name": "Algorithm 3",
+            "name": "Algorithm Product Search",
             "class": "ProductSearch",
             "config": {
                 "must": [
@@ -1065,8 +1268,8 @@ Create a new algorithm.
 + Response 201 (application/json)
 
         {
-            "id": "53c3dbdd72585e32f7507777",
-            "name": "Algorithm 3",
+            "id": "0c6b2cd1cb714cf5860f3d8e83c31a8e",
+            "name": "Algorithm Product Search",
             "class": "ProductSearch",
             "config": {
                 "must": [
@@ -1103,16 +1306,16 @@ A single algorithm object with all its details
 
 + Parameters
 
-    + account_id (required, string, `53c3dbdd72585e32f7503347`) ... to which do you want to perform actions
-    + algorithm_id (required, string, `53c3dbdd72585e32f7503347`) ... Hash string  `id` of the Algorithm to perform action with.
+    + account_id (required, string, `4959bc0ab5f24ac2a9688908adaf9e24`) ... ID of the account to perform the action on
+    + algorithm_id (required, string, `0c6b2cd1cb714cf5860f3d8e83c31a8e`) ... ID of the algorithm to perform the action on
 
 ### getRecommendationAlgorithm [GET]
 Retrieve an algorithm.
 + Response 200 (application/json)
 
         { 
-            "id": "53c3dbdd72585e32f7507777", 
-            "name": "Algorithm 3",
+            "id": "0c6b2cd1cb714cf5860f3d8e83c31a8e", 
+            "name": "Algorithm Product Search",
             "class": "ProductSearch",
             "config": {
                 "must": [
@@ -1146,11 +1349,14 @@ Retrieve an algorithm.
 
 ### updateRecommendationAlgorithm [PUT]
 Update an algorithm.
+
+The request may contain the field `id`, which is ignored; `algorithm_id` is used instead.
+
 + Request (application/json)
 
         { 
-            "id": "53c3dbdd72585e32f7507777", 
-            "name": "Algorithm 3",
+            "id": "anyString", 
+            "name": "Algorithm for searching products",
             "class": "ProductSearch",
             "config": {
                 "must": [
@@ -1185,8 +1391,8 @@ Update an algorithm.
 + Response 200 (application/json)
 
         { 
-            "id": "53c3dbdd72585e32f7507777", 
-            "name": "Algorithm 3",
+            "id": "0c6b2cd1cb714cf5860f3d8e83c31a8e", 
+            "name": "Algorithm for searching products",
             "class": "ProductSearch",
             "config": {
                 "must": [
@@ -1217,17 +1423,400 @@ Update an algorithm.
                 ]
             } 
         }
+        
++ Response 404
+
+        { 
+            "error": "Recommendation algorithm not found."
+        }
 
 ### deleteRecommendationAlgorithm [DELETE]
 Delete an algorithm.
-+ Response 200
++ Response 204
+
++ Response 404
+
+        { 
+            "error": "Recommendation algorithm not found."
+        }
+        
+# Group AB tests
+
+## AB tests list [/accounts/{account_id}/abTests]
+
++ Parameters
+
+    + account_id (required, string, `4959bc0ab5f24ac2a9688908adaf9e24`) ... ID of the account to perform the action on
+
+### listABTests [GET]
+List all AB tests.
+
++ Response 200 (application/json)
+
+        [
+            {
+                "id": "2ac25fb1ed2248b0a379e4c7d5049ab4",
+                "name": "New shopping tray features evaluation",
+                "isActive": true,
+                "variants": [
+                    {
+                        "id": "A",
+                        "name": "Old-style shopping tray",
+                        "someField1": "someValue1",
+                        "someField2": "someValue2"
+                    },
+                    {
+                        "id": "B",
+                        "name": "New-style shopping tray",
+                        "someField1": "someValue1",
+                        "someField2": "someValue2"
+                    }
+                ]
+            },
+            {
+                "id": "b9e0ab6e9d184606982e33b66749d6b1",
+                "name": "Persoo evaluation",
+                "isActive": false,
+                "variants": [
+                    {
+                        "id": "A",
+                        "name": "Persoo off"
+                        "someField1": "someValue1",
+                        "someField2": "someValue2"
+                    },
+                    {
+                        "id": "B",
+                        "name": "Simple product recommendation",
+                        "someField1": "someValue1",
+                        "someField2": "someValue2"
+                    },
+                    {
+                        "id": "C",
+                        "name": "Personalized product recommendation",
+                        "someField1": "someValue1",
+                        "someField2": "someValue2"
+                    }
+                ]
+            }
+        ]
+
+### newABTest [POST]
+Create a new AB test.
+
++ Request (application/json)
+
+        {
+            "name": "New layout evaluation",
+            "isActive": true,
+            "variants": [
+                {
+                    "id": "A",
+                    "name": "Old layout",
+                    "someField1": "someValue1",
+                    "someField2": "someValue2"
+                },
+                {
+                    "id": "B",
+                    "name": "New layout",
+                    "someField1": "someValue1",
+                    "someField2": "someValue2"
+                }
+            ]
+        }
+
++ Response 201 (application/json)
+
+        {
+            "id": "98e6bed351ed47c1878bd8af9374434d",
+            "name": "New layout evaluation",
+            "isActive": true,
+            "variants": [
+                {
+                    "id": "A",
+                    "name": "Old layout",
+                    "someField1": "someValue1",
+                    "someField2": "someValue2"
+                },
+                {
+                    "id": "B",
+                    "name": "New layout",
+                    "someField1": "someValue1",
+                    "someField2": "someValue2"
+                }
+            ]
+        }
+
+## AB test [/accounts/{account_id}/abTests/{ab_test_id}]
+A single AB test object with all its details.
+
++ Parameters
+
+    + account_id (required, string, `4959bc0ab5f24ac2a9688908adaf9e24`) ... ID of the account to perform the action on
+    + ab_test_id (required, string, `98e6bed351ed47c1878bd8af9374434d`) ... ID of the AB test to perform the action on
+
+### getABTest [GET]
+Retrieve an AB test.
+
++ Response 200 (application/json)
+
+        {
+            "id": "98e6bed351ed47c1878bd8af9374434d",
+            "name": "New layout evaluation",
+            "isActive": true,
+            "variants": [
+                {
+                    "id": "A",
+                    "name": "Old layout",
+                    "someField1": "someValue1",
+                    "someField2": "someValue2"
+                },
+                {
+                    "id": "B",
+                    "name": "New layout",
+                    "someField1": "someValue1",
+                    "someField2": "someValue2"
+                }
+            ]
+        }
 
 + Response 404
 
         {
-            "errors": [
+            "error": "AB test not found."
+        }
+
+### updateABTest [PUT]
+Update an AB test.
+
+The request may contain the field `id`, which is ignored; `ab_test_id` is used instead.
+
++ Request (application/json)
+
+        {
+            "id": "anyString",
+            "name": "Evaluation of the new layout",
+            "isActive": false,
+            "variants": [
                 {
-                    "message": "Resource not found."
+                    "id": "A",
+                    "name": "Old layout",
+                    "someField1": "someValue1",
+                    "someField2": "someValue2"
+                },
+                {
+                    "id": "B",
+                    "name": "New layout without chatbox",
+                    "someField1": "someValue1",
+                    "someField2": "someValue2"
+                },
+                {
+                    "id": "C",
+                    "name": "New layout with chatbox",
+                    "someField1": "someValue1",
+                    "someField2": "someValue2"
                 }
             ]
-        }        
+        }
+
++ Response 200 (application/json)
+
+        {
+            "id": "98e6bed351ed47c1878bd8af9374434d",
+            "name": "Evaluation of the new layout",
+            "isActive": false,
+            "variants": [
+                {
+                    "id": "A",
+                    "name": "Old layout",
+                    "someField1": "someValue1",
+                    "someField2": "someValue2"
+                },
+                {
+                    "id": "B",
+                    "name": "New layout without chatbox",
+                    "someField1": "someValue1",
+                    "someField2": "someValue2"
+                },
+                {
+                    "id": "C",
+                    "name": "New layout with chatbox",
+                    "someField1": "someValue1",
+                    "someField2": "someValue2"
+                }
+            ]
+        }
+
++ Response 404
+
+        {
+            "error": "AB test not found."
+        }
+
+### deleteABTest [DELETE]
+Delete an AB test.
+
++ Response 204
+
++ Response 404
+
+        {
+            "error": "AB test not found."
+        }
+
+## Statistics [/accounts/{account_id}/abTests/{ab_test_id}/statistics?timestampFrom={timestamp_from}&timestampTo={timestamp_to}]
+
++ Parameters
+    + account_id (required, string, `4959bc0ab5f24ac2a9688908adaf9e24`) ... ID of the account to perform the action on
+    + ab_test_id (required, string, `98e6bed351ed47c1878bd8af9374434d`) ... ID of the AB test to get the statistics of
+    + timestamp_from (required, long, `43932000`) ... start the statistics with the day containing this timestamp (in UTC)
+    + timestamp_to (required, long, `300000000`) ... end the statistics with the day containing this timestamp (in UTC)
+
+### getStatistics [GET]
+Get daily statistics for an AB test.
+
++ Response 200
+
+        {
+            "timestamps": [
+                0,
+                86400000,
+                172800000,
+                259200000
+            ],
+            "dates": [
+                "1970-01-01",
+                "1970-01-02",
+                "1970-01-03",
+                "1970-01-04"
+            ],
+            "metrics": {
+                "clicks": [
+                    1087,
+                    5734,
+                    2652,
+                    2722
+                ],
+                "impressions": [
+                    9871,
+                    7736,
+                    3509,
+                    6366
+                ],
+                "someOtherMetric1": [
+                    0.003668946172197818,
+                    0.2178408492721543,
+                    0.028777068662288574,
+                    0.9506455736459639
+                ],
+                "someOtherMetric2": [
+                    879,
+                    -225,
+                    -647,
+                    -715
+                ]
+            },
+            "variants": {
+                "A": {
+                    "metrics": {
+                        "clicks": [
+                            200,
+                            825,
+                            309,
+                            421
+                        ],
+                        "impressions": [
+                            214,
+                            5741,
+                            3476,
+                            7961
+                        ],
+                        "someOtherMetric1": [
+                            0.6555852127295537,
+                            0.16896041396298656,
+                            0.523081442902202,
+                            0.4299017917097032
+                        ],
+                        "someOtherMetric2": [
+                            -84,
+                            485,
+                            639,
+                            -562
+                        ]
+                    },
+                    "someField1": true,
+                    "someField2": 1984,
+                    "someField3": "stringValue"
+                },
+                "B": {
+                    "metrics": {
+                        "clicks": [
+                            312,
+                            782,
+                            1194,
+                            3461
+                        ],
+                        "impressions": [
+                            4848,
+                            3822,
+                            2828,
+                            4781
+                        ],
+                        "someOtherMetric1": [
+                            0.6530000210379121,
+                            0.4907884562323944,
+                            0.9646868032420256,
+                            0.572847940496758
+                        ],
+                        "someOtherMetric2": [
+                            -538,
+                            958,
+                            -633,
+                            -935
+                        ]
+                    },
+                    "someField1": true,
+                    "someField2": 1984,
+                    "someField3": "stringValue"
+                },
+                "C": {
+                    "metrics": {
+                        "clicks": [
+                            4544,
+                            1111,
+                            67,
+                            344
+                        ],
+                        "impressions": [
+                            9147,
+                            9785,
+                            884,
+                            722
+                        ],
+                        "someOtherMetric1": [
+                            0.42879058328463504,
+                            0.9594470561745583,
+                            0.2757569125503805,
+                            0.1403655010726006
+                        ],
+                        "someOtherMetric2": [
+                            332,
+                            196,
+                            444,
+                            -424
+                        ]
+                    },
+                    "someField1": true,
+                    "someField2": 1984,
+                    "someField3": "stringValue"
+                }
+            },
+            "someField1": true,
+            "someField2": 1984,
+            "someField3": "stringValue"
+        }
+
++ Response 404
+
+        { 
+            "error": "AB test not found."
+        }
