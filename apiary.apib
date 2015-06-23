@@ -1,5 +1,5 @@
 FORMAT: 1A
-HOST: http://adminapi.test-a.persoo.cz
+HOST: http://api.persoo.cz
 
 # Persoo administration API
 API for configuring Persoo accounts.
@@ -20,6 +20,7 @@ API for configuring Persoo accounts.
 - 401 `Unauthorized` - Authentication token is invalid or has expired. (Try logging in again.)
 - 403 `Forbidden` - Access denied.
 - 404 `Not Found` - The requested resource wasn't found.
+- 409 `Conflict` - Entity requested to be created already exists.
 
 ## Error reporting
 
@@ -58,29 +59,33 @@ Error responses (status 4xx/5xx) contain a detailed description of the error(s) 
 ```
 
 # Group Users
-The users are owners of accounts. Each users have unique credentials to access in system.
-
-TODO - Dodělat, představa je taková, že requesty budeme jen přeposílat persoo-config-unitě. V reálu budou nejspíš metody trochu jiné, nebude to umět tolik, ale zhruba to tak bude.
+Users are owners of accounts. Each user has unique credentials (ID, password) to access the system, associated email (unique in the system), role (common user or superuser), and other data (name, ...).
 
 ## Login [/login]
 ### login [POST]
-V hlavičce odpovědi nastaví cookie tak, aby další requesty mohly probíhat bez zásahu (autentizace se bere z cookie).
-Token vyprší po půl hodině. S každým requestem může v odpovědi přijít aktualizovaný token.
+Sets a token cookie so that the further requests are automatically authorized. The token expires in 30 minutes, but is automatically refreshed with each request.
 
 + Request (application/json)
 
     + Body
     
             {
-                "username": "user@email.com",
-                "passwordHash": "passwordHash"
+                "id": "e8fb4ab5e6f44912a911fead7f286363",
+                "passwordHash": "5f4dcc3b5aa765d61d8327deb882cf99"
+            }
+            
+            or
+            
+            {
+                "email": "user@email.com",
+                "passwordHash": "5f4dcc3b5aa765d61d8327deb882cf99"
             }
 
 + Response 204
 
     + Headers
     
-            Set-Cookie:  expires=Mon, 30-Jul-2014 09:12:42 GMT; persooAuthToken={token};
+            Set-Cookie: Expires=Mon, 30-Jul-2014 09:12:42 GMT; persooAuthToken={token}
 
 + Response 401
 
@@ -97,50 +102,182 @@ Delete cookie with token.
 
     + Headers
     
-            Set-Cookie:  expires=Thu, 01 Jan 1970 00:00:01 GMT persooAuthToken={token};
+            Set-Cookie: Expires=Thu, 01 Jan 1970 00:00:00 GMT; persooAuthToken={token}
 
-## User [/users/{username}]
+## Users [/users]
+A user's details.
+
+### listUsers [GET]
+List all existing users.
+
++ Response 200 (application/json)
+
+        [
+            {
+                "id": "e8fb4ab5e6f44912a911fead7f286363",
+                "email": "test@email.com",
+                "role": "common",
+                "name": "Jakub"
+            },
+            {
+                "id": "ce7ffd7478e840dd967be22ff3c17f23",
+                "email": "test2@email.com",
+                "role": "superuser",
+                "name": "Administrator"
+            }
+        ]
+        
+### newUser [POST]
+Create a new user.
++ Request (application/json)
+
+        {
+            "email": "test3@email.com",
+            "passwordHash": "someHash",
+            "role": "common",
+            "name": "Alice"
+        }
+
++ Response 201 (application/json)
+
+        {
+            "email": "test@email3.com",
+            "role": "common",
+            "name": "Alice"
+        }
+        
++ Response 400
++ Response 403
++ Response 409        
+
+## User [/users/{userID}]
 A user's details.
 
 + Parameters
 
-    + username (required, string, `test@email.com`) ... name of the user to perform the action on. "current" can be used for the user logged in
-
+    + userID (required, string, `e8fb4ab5e6f44912a911fead7f286363`) ... ID of the user to perform the action on. "current" can be used for the user logged in
 
 ### getUser [GET]
-Retrieve the user details by username or 'current' for currently logged user.
+Retrieve the user details by email or 'current' for currently logged user.
 + Response 200 (application/json)
 
         {
-            "username": "test@email.com"
+            "id": "e8fb4ab5e6f44912a911fead7f286363",
+            "email": "test@email.com",
+            "role": "common",
+            "name": "Jakub"
+        }
+        
++ Response 403
++ Response 404
+
+        { 
+            "error": "User not found."
         }
 
-## Change password [/users/{username}/password]
+### updateUser [PUT]
+Update the user details by email or 'current' for currently logged user.
++ Request (application/json)
+
+        {
+            "email": "kuba@email.com",
+            "passwordHash": "14a88b9d2f52c55b5fbcf9c5d9c11875",
+            "role": "superuser",
+            "name": "Kuba"
+        }
+
++ Response 200 (application/json)
+
+        {
+            "id": "e8fb4ab5e6f44912a911fead7f286363",
+            "email": "kuba@email.com",
+            "role": "superuser",
+            "name": "Kuba"
+        }
+
++ Response 400        
++ Response 403
++ Response 404
++ Response 409
+
+### deleteUser [DELETE]
+Delete the user by email or 'current' for currently logged user.
+
++ Response 204
+
++ Response 403
++ Response 404
+
+        { 
+            "error": "User not found."
+        }
++ Response 409
+  
+## Register user [/users/register]   
+    
+### register [POST]
+(Not implemented so far.)
+
+Register a new user.
+
++ Request (application/json)
+
+    + Body
+    
+            {
+                "email": "user@email.com",
+                "passwordHash": "5f4dcc3b5aa765d61d8327deb882cf99",
+                "name": "John"
+            }
+
++ Response 204
++ Response 409
+
+## Change password [/users/{userID}/changePassword]
 
 + Parameters
 
-    + username (required, string, `test@email.com`) ... name of the user to perform the action on. "current" can be used for the user logged in
-
+    + userID (required, string, `e8fb4ab5e6f44912a911fead7f286363`) ... ID of the user to perform the action on. "current" can be used for the user logged in
 
 ### changePassword [POST]
-Change password by username or 'current' for currently logged user.
+Change password of a user.
 
 + Request (application/json)
 
         {
-            "passwordHash": "4f4dcc3b5aa765d61d8327deb882cf88"
-            "newPasswordHash": "5f4dcc3b5aa765d61d8327deb882cf99"
+            "passwordHash": "5f4dcc3b5aa765d61d8327deb882cf99"
+            "newPasswordHash": "14a88b9d2f52c55b5fbcf9c5d9c11875"
         }
         
 + Response 204
++ Response 400
 + Response 403
++ Response 404
+
+## Reset password [/users/resetPassword]
+
+### resetPassword [POST]
+(Not implemented so far.)
+
+Reset password of a user. The user will receive an email with a new password.
+
++ Request (application/json)
+
+    + Body
+        
+            {
+                "email": "user@email.com"
+            }
+
++ Response 204
++ Response 404
 
 
 # Group Account
 User Account is start point in Persoo. Every User can have many Account and each account have own Scenarios and Algorithms
 (Every account have unique ID = apikey)
 
-## Accounts list [/accounts]
+## Accounts [/accounts]
 ### listAccounts [GET]
 Složitější metoda, potřebuje to klient - možná z toho uděláme nějakou obecnou metodu na získání všech informací důležitých pro uživatele globálně.
 
@@ -172,12 +309,12 @@ Create a new account.
             "name": "My account"
         }
 
-## Account [/accounts/{account_id}]
+## Account [/accounts/{accountID}]
 A single account object with basic data
 
 + Parameters
 
-    + account_id (required, string, `4959bc0ab5f24ac2a9688908adaf9e24`) ... ID of the account to perform the action on
+    + accountID (required, string, `4959bc0ab5f24ac2a9688908adaf9e24`) ... ID of the account to perform the action on
 
 ### deleteAccount [DELETE]
 Delete the account.
@@ -189,12 +326,12 @@ Delete the account.
             "error": "Account not found."
         }
         
-## Changes [/accounts/{account_id}/changes]
+## Changes [/accounts/{accountID}/changes]
 
 Manipulation of the differences between the current state (test environment) and the last stable state (production environment).
 
 + Parameters
-    + account_id (required, string, `4959bc0ab5f24ac2a9688908adaf9e24`) ... ID of the account to perform the action on
+    + accountID (required, string, `4959bc0ab5f24ac2a9688908adaf9e24`) ... ID of the account to perform the action on
     
 
 ### getChanges [GET]
@@ -216,20 +353,21 @@ Reset the current state to the last stable state (After this operation, the test
 
 + Response 204
 
-## Statistics [/accounts/{account_id}/statistics?timestampFrom={timestamp_from}&timestampTo={timestamp_to}]
+## Statistics [/accounts/{accountID}/statistics?timestampFrom={timestampFrom}&timestampTo={timestampTo}]
 
 + Parameters
-    + timestamp_from (required, long, `43932000`) ... start the statistics with the day containing this timestamp (in UTC)
-    + timestamp_to (required, long, `300000000`) ... end the statistics with the day containing this timestamp (in UTC)
+    + timestampFrom (required, long, `43932000`) ... start the statistics with the day containing this timestamp (in UTC)
+    + timestampTo (required, long, `300000000`) ... end the statistics with the day containing this timestamp (in UTC)
 
 ### getStatistics [GET]
 Get daily statistics for an account.
 
 If a metric isn't available for a particular day, `null` is used instead of a number value.
 
-+ Response 200
++ Response 200 (application/json)
 
         {
+            "id": "niubci3ll8ig3dimo1lbjoqo",
             "timestamps": [
                 0,
                 86400000,
@@ -267,10 +405,7 @@ If a metric isn't available for a particular day, `null` is used instead of a nu
                     783,
                     412
                 ]
-            },
-            "someField1": true,
-            "someField2": 1984,
-            "someField3": "stringValue"
+            }
         }
 
 + Response 404
@@ -288,11 +423,11 @@ A single account settings
  * integrations - set Google Analytics version, etc.
  * customDataflow - (advanced feature), i.e. to import transactions from department stores,...
 
-## Settings [/accounts/{account_id}/settings]
+## Settings [/accounts/{accountID}/settings]
 
 + Parameters
 
-    + account_id (required, string, `4959bc0ab5f24ac2a9688908adaf9e24`) ... ID of the account to perform the action on
+    + accountID (required, string, `4959bc0ab5f24ac2a9688908adaf9e24`) ... ID of the account to perform the action on
 
 
 ### getSettings [GET]
@@ -415,11 +550,11 @@ Update the account settings.
 Importing data (products, categories, ...) from external URLs. You can also run imports manually
 or see import status.
 
-## Imports list [/accounts/{account_id}/imports]
+## Imports [/accounts/{accountID}/imports]
 
 + Parameters
 
-    + account_id (required, string, `4959bc0ab5f24ac2a9688908adaf9e24`) ... ID of the account to perform the action on
+    + accountID (required, string, `4959bc0ab5f24ac2a9688908adaf9e24`) ... ID of the account to perform the action on
 
 ### listImports [GET]
 Retrieve import settings for all available imports.
@@ -464,12 +599,12 @@ Retrieve import settings for all available imports.
         ]
 
 
-## Import [/accounts/{account_id}/imports/{import_id}]
+## Import [/accounts/{accountID}/imports/{importID}]
 
 + Parameters
 
-    + account_id (required, string, `4959bc0ab5f24ac2a9688908adaf9e24`) ... ID of the account to perform the action on
-    + import_id (required, string, `products`) ... either "products" or "categories"
+    + accountID (required, string, `4959bc0ab5f24ac2a9688908adaf9e24`) ... ID of the account to perform the action on
+    + importID (required, string, `products`) ... either "products" or "categories"
 
 ### getImport [GET]
 Retrieve import settings.
@@ -590,11 +725,11 @@ Update import settings.
             "javascriptPreprocessor": "function process(item) { return item; }"
         }
 
-## Run import [/accounts/{account_id}/imports/{import_id}/run]
+## Run import [/accounts/{accountID}/imports/{importID}/run]
 
 + Parameters
-    + account_id (required, string, `4959bc0ab5f24ac2a9688908adaf9e24`) ... ID of the account to perform the action on
-    + import_id (required, string, `products`) ... either "products" or "categories"
+    + accountID (required, string, `4959bc0ab5f24ac2a9688908adaf9e24`) ... ID of the account to perform the action on
+    + importID (required, string, `products`) ... either "products" or "categories"
 
 ### runImport [POST]
 Run import.
@@ -605,11 +740,11 @@ Run import.
             "id": "209e6be2-8488-4e99-ab9f-3620848cf1d2"
         }
 
-## Get import status [/accounts/{account_id}/imports/{import_id}/status]
+## Get import status [/accounts/{accountID}/imports/{importID}/status]
 
 + Parameters
-    + account_id (required, string, `4959bc0ab5f24ac2a9688908adaf9e24`) ... ID of the account to perform the action on
-    + import_id (required, string, `products`) ... either "products" or "categories"
+    + accountID (required, string, `4959bc0ab5f24ac2a9688908adaf9e24`) ... ID of the account to perform the action on
+    + importID (required, string, `products`) ... either "products" or "categories"
 
 ### getImportStatus [GET]
 Get import status:
@@ -665,11 +800,11 @@ Get import status:
 # Group Scenarios
 Scenarios is set of products ids composed of several algorithms.
 
-## Scenarios list [/accounts/{account_id}/recommendations/scenarios]
+## Scenarios [/accounts/{accountID}/recommendations/scenarios]
 
 + Parameters
 
-    + account_id (required, string, `4959bc0ab5f24ac2a9688908adaf9e24`) ... ID of the account to perform the action on
+    + accountID (required, string, `4959bc0ab5f24ac2a9688908adaf9e24`) ... ID of the account to perform the action on
 
 ### listRecommendationScenarios [GET]
 List all scenarios.
@@ -681,6 +816,7 @@ List all scenarios.
                 "id": "f9acbc0c49874d51bf6c70d46ef0cf4c",
                 "isActive": true,
                 "name": "Homepage - recommended news",
+                "abTest": "2ac25fb1ed2248b0a379e4c7d5049ab4",
                 "location": {
                     "mode": "replace",
                     "onPageType": "Homepage",
@@ -710,6 +846,7 @@ List all scenarios.
                 "id": "e23fc94bbcc947f5aa4872c5fc04966b",
                 "isActive": true,
                 "name": "Homepage - recommendation",
+                "abTest": null,
                 "location": {
                     "mode": "replace",
                     "onPageType": "Homepage",
@@ -735,6 +872,7 @@ List all scenarios.
                 "id": "2d5d11011d1444a29cc71d05e06f161d",
                 "isActive": true,
                 "name": "Detail - alternatives",
+                "abTest": null,
                 "location": {
                     "mode": "replace",
                     "onPageType": "Product",
@@ -764,6 +902,7 @@ List all scenarios.
                 "id": "cf8920281e0341058474fb2dd47b4fff",
                 "isActive": true,
                 "name": "Detail - crosssell",
+                "abTest": null,
                 "location": {
                     "mode": "replace",
                     "onPageType": "Product",
@@ -789,6 +928,7 @@ List all scenarios.
                 "id": "40aed0f057294e10bb6ba0fcb8f77050",
                 "isActive": true,
                 "name": "Basket - crosssell",
+                "abTest": null,
                 "location": {
                     "mode": "replace",
                     "onPageType": "Category",
@@ -814,6 +954,7 @@ List all scenarios.
                 "id": "239b49caad3946ecb295b96d4c972d9f",
                 "isActive": true,
                 "name": "Page footer - last viewed products",
+                "abTest": null,
                 "location": {
                     "mode": "replace",
                     "onPageType": "category",
@@ -844,10 +985,11 @@ List all scenarios.
 ### newRecommendationScenario [POST]
 Create a new scenario.
 + Request (application/json)
-        
+
         {
             "name": "Best Sellers",
             "isActive": true,
+            "abTest": null,
             "location": {
                 "selectorClass": "query",
                 "selector": "#tab .products",
@@ -883,6 +1025,7 @@ Create a new scenario.
             "id": "f9acbc0c49874d51bf6c70d46ef0cf4c",
             "name": "Best Sellers",
             "isActive": true,
+            "abTest": null,
             "location": {
                 "selectorClass": "query",
                 "selector": "#tab .products",
@@ -912,13 +1055,13 @@ Create a new scenario.
             ]
         }
 
-## Scenario [/accounts/{account_id}/recommendations/scenarios/{scenario_id}]
+## Scenario [/accounts/{accountID}/recommendations/scenarios/{scenarioID}]
 A single scenario object with all its details.
 
 + Parameters
 
-    + account_id (required, string, `4959bc0ab5f24ac2a9688908adaf9e24`) ... ID of the account to perform the action on
-    + scenario_id (required, string, `f9acbc0c49874d51bf6c70d46ef0cf4c`) ... ID of the scenario to perform the action on
+    + accountID (required, string, `4959bc0ab5f24ac2a9688908adaf9e24`) ... ID of the account to perform the action on
+    + scenarioID (required, string, `f9acbc0c49874d51bf6c70d46ef0cf4c`) ... ID of the scenario to perform the action on
 
 ### getRecommendationScenario [GET]
 Retrieve a scenario.
@@ -929,6 +1072,7 @@ Retrieve a scenario.
             "id": "f9acbc0c49874d51bf6c70d46ef0cf4c",
             "name": "Best Sellers",
             "isActive": true,
+            "abTest": null,
             "location": {
                 "selectorClass": "query",
                 "selector": "#tab .products",
@@ -968,7 +1112,7 @@ Retrieve a scenario.
 ### updateRecommendationScenario [PUT]
 Update a scenario.
 
-The request may contain the field `id`, which is ignored; `scenario_id` is used instead.
+The request may contain the field `id`, which is ignored; `scenarioID` is used instead.
 
 + Request (application/json)
 
@@ -976,6 +1120,7 @@ The request may contain the field `id`, which is ignored; `scenario_id` is used 
             "id": "anyString",
             "name": "Best Selling Products",
             "isActive": false,
+            "abTest": null,
             "location": {
                 "selectorClass": "query",
                 "selector": "#tab .products",
@@ -1008,6 +1153,7 @@ The request may contain the field `id`, which is ignored; `scenario_id` is used 
             "id": "f9acbc0c49874d51bf6c70d46ef0cf4c",
             "name": "Best Selling Products",
             "isActive": false,
+            "abTest": null,
             "location": {
                 "selectorClass": "query",
                 "selector": "#tab .products",
@@ -1026,7 +1172,7 @@ The request may contain the field `id`, which is ignored; `scenario_id` is used 
                         "minCount": 3,
                         "fallbacks": [
                             {
-                               "ref": "7854436109d24de1a332a14a59c5a5c"7ss
+                               "ref": "7854436109d24de1a332a14a59c5a5c"
                             }
                         ]
                     }
@@ -1052,13 +1198,230 @@ Delete a scenario.
             "error": "Recommendation scenario not found."
         }
         
-## Statistics [/accounts/{account_id}/recommendations/scenarios/{scenario_id}/statistics?timestampFrom={timestamp_from}&timestampTo={timestamp_to}]
+## Scenarios statistics [/accounts/{accountID}/recommendations/scenarios/statistics?timestampFrom={timestampFrom}&timestampTo={timestampTo}]
 
 + Parameters
-    + account_id (required, string, `4959bc0ab5f24ac2a9688908adaf9e24`) ... ID of the account to perform the action on
-    + scenario_id (required, string, `f9acbc0c49874d51bf6c70d46ef0cf4c`) ... ID of the scenario to get the statistics of
-    + timestamp_from (required, long, `43932000`) ... start the statistics with the day containing this timestamp (in UTC)
-    + timestamp_to (required, long, `300000000`) ... end the statistics with the day containing this timestamp (in UTC)
+    + accountID (required, string, `4959bc0ab5f24ac2a9688908adaf9e24`) ... ID of the account to perform the action on
+    + timestampFrom (required, long, `43932000`) ... start the statistics with the day containing this timestamp (in UTC)
+    + timestampTo (required, long, `300000000`) ... end the statistics with the day containing this timestamp (in UTC)
+
+### getRecommendationScenariosStatistics [GET]
+Get daily statistics for all scenarios.
+
+If a metric isn't available for a particular day, `null` is used instead of a number value.
+
+Metrics in the root level are the metrics for all variants aggregated. (The values in the example below are random and don't respect this.)
+
++ Response 200 (application/json)
+
+        [
+            {
+                "id": "e23fc94bbcc947f5aa4872c5fc04966b",
+                "timestamps": [
+                    0,
+                    86400000,
+                    172800000,
+                    259200000
+                ],
+                "dates": [
+                    "1970-01-01",
+                    "1970-01-02",
+                    "1970-01-03",
+                    "1970-01-04"
+                ],
+                "metrics": {
+                    "clicks": [
+                        null,
+                        null,
+                        799,
+                        950
+                    ],
+                    "impressions": [
+                        null,
+                        null,
+                        3251,
+                        5428
+                    ],
+                    "someOtherMetric1": [
+                        null,
+                        null,
+                        0.9095407241692913,
+                        0.40087619631713756
+                    ],
+                    "someOtherMetric2": [
+                        null,
+                        null,
+                        -216,
+                        -51
+                    ]
+                },
+                "variants": {
+                    "0": {
+                        "metrics": {
+                            "clicks": [
+                                null,
+                                null,
+                                1500,
+                                1444
+                            ],
+                            "impressions": [
+                                null,
+                                null,
+                                1088,
+                                1273
+                            ],
+                            "someOtherMetric1": [
+                                null,
+                                null,
+                                0.49225843350585785,
+                                0.562467127770878
+                            ],
+                            "someOtherMetric2": [
+                                null,
+                                null,
+                                422,
+                                806
+                            ]
+                        }
+                    },
+                    "1": {
+                        "metrics": {
+                            "clicks": [
+                                null,
+                                null,
+                                1700,
+                                1676
+                            ],
+                            "impressions": [
+                                null,
+                                null,
+                                3088,
+                                1773
+                            ],
+                            "someOtherMetric1": [
+                                null,
+                                null,
+                                0.49225843350585785,
+                                0.562467127770878
+                            ],
+                            "someOtherMetric2": [
+                                null,
+                                null,
+                                422,
+                                806
+                            ]
+                        }
+                    }
+                }
+            },
+            {
+                "id": "a35c73fbb9c84152bddb15a4b6c5bd98",
+                "timestamps": [
+                    0,
+                    86400000,
+                    172800000,
+                    259200000
+                ],
+                "dates": [
+                    "1970-01-01",
+                    "1970-01-02",
+                    "1970-01-03",
+                    "1970-01-04"
+                ],
+                "metrics": {
+                    "clicks": [
+                        643,
+                        null,
+                        null,
+                        950
+                    ],
+                    "impressions": [
+                        4112,
+                        null,
+                        null,
+                        4354
+                    ],
+                    "someOtherMetric1": [
+                        0.1593870380526593,
+                        null,
+                        null,
+                        0.2735065237536176
+                    ],
+                    "someOtherMetric2": [
+                        -123,
+                        null,
+                        null,                        
+                        -43
+                    ]
+                },
+                "variants": {
+                    "0": {
+                        "metrics": {
+                            "clicks": [
+                                3221,
+                                null,
+                                null,
+                                421
+                            ],
+                            "impressions": [
+                                432,
+                                null,
+                                null,
+                                511
+                            ],
+                            "someOtherMetric1": [
+                                0.43912250908729766,
+                                null,
+                                null,
+                                0.2646019266493288
+                            ],
+                            "someOtherMetric2": [
+                                421,
+                                null,
+                                null,
+                                763
+                            ]
+                        }
+                    },
+                    "1": {
+                        "metrics": {
+                            "clicks": [
+                                4211,
+                                null,
+                                null,
+                                1981
+                            ],
+                            "impressions": [
+                                914,
+                                null,
+                                null,
+                                7531
+                            ],
+                            "someOtherMetric1": [
+                                0.7504501949201073,
+                                null,
+                                null,
+                                0.545216574297256
+                            ],
+                            "someOtherMetric2": [
+                                321,
+                                null,
+                                null,
+                                637
+                            ]
+                        }
+                    }
+                }
+            }
+        ]
+
+## Scenario statistics [/accounts/{accountID}/recommendations/scenarios/{scenarioID}/statistics?timestampFrom={timestampFrom}&timestampTo={timestampTo}]
+
++ Parameters
+    + accountID (required, string, `4959bc0ab5f24ac2a9688908adaf9e24`) ... ID of the account to perform the action on
+    + scenarioID (required, string, `f9acbc0c49874d51bf6c70d46ef0cf4c`) ... ID of the scenario to get the statistics of
+    + timestampFrom (required, long, `43932000`) ... start the statistics with the day containing this timestamp (in UTC)
+    + timestampTo (required, long, `300000000`) ... end the statistics with the day containing this timestamp (in UTC)
 
 ### getRecommendationScenarioStatistics [GET]
 Get daily statistics for a scenario.
@@ -1067,9 +1430,10 @@ If a metric isn't available for a particular day, `null` is used instead of a nu
 
 Metrics in the root level are the metrics for all variants aggregated. (The values in the example below are random and don't respect this.)
 
-+ Response 200
++ Response 200 (application/json)
 
         {
+            "id": "e23fc94bbcc947f5aa4872c5fc04966b",
             "timestamps": [
                 0,
                 86400000,
@@ -1114,7 +1478,35 @@ Metrics in the root level are the metrics for all variants aggregated. (The valu
                         "clicks": [
                             null,
                             null,
-                            1971,
+                            1500,
+                            1444
+                        ],
+                        "impressions": [
+                            null,
+                            null,
+                            1088,
+                            1273
+                        ],
+                        "someOtherMetric1": [
+                            null,
+                            null,
+                            0.49225843350585785,
+                            0.562467127770878
+                        ],
+                        "someOtherMetric2": [
+                            null,
+                            null,
+                            422,
+                            806
+                        ]
+                    }
+                },
+                "1": {
+                    "metrics": {
+                        "clicks": [
+                            null,
+                            null,
+                            1700,
                             1676
                         ],
                         "impressions": [
@@ -1135,15 +1527,9 @@ Metrics in the root level are the metrics for all variants aggregated. (The valu
                             422,
                             806
                         ]
-                    },
-                    "someField1": true,
-                    "someField2": 1984,
-                    "someField3": "stringValue"
+                    }
                 }
-            },
-            "someField1": true,
-            "someField2": 1984,
-            "someField3": "stringValue"
+            }
         }
 
 + Response 404
@@ -1155,11 +1541,11 @@ Metrics in the root level are the metrics for all variants aggregated. (The valu
 # Group Algorithms
 Algorithms is base recommendation computation logic.
 
-## Algorithms list [/accounts/{account_id}/recommendations/algorithms]
+## Algorithms [/accounts/{accountID}/recommendations/algorithms]
 
 + Parameters
 
-    + account_id (required, string, `4959bc0ab5f24ac2a9688908adaf9e24`) ... ID of the account to perform the action on
+    + accountID (required, string, `4959bc0ab5f24ac2a9688908adaf9e24`) ... ID of the account to perform the action on
 
 ### listRecommendationAlgorithms [GET]
 List all algorithms.
@@ -1307,13 +1693,13 @@ Create a new algorithm.
             } 
         }
 
-## Algorithm [/accounts/{account_id}/recommendations/algorithms/{algorithm_id}]
+## Algorithm [/accounts/{accountID}/recommendations/algorithms/{algorithmID}]
 A single algorithm object with all its details
 
 + Parameters
 
-    + account_id (required, string, `4959bc0ab5f24ac2a9688908adaf9e24`) ... ID of the account to perform the action on
-    + algorithm_id (required, string, `0c6b2cd1cb714cf5860f3d8e83c31a8e`) ... ID of the algorithm to perform the action on
+    + accountID (required, string, `4959bc0ab5f24ac2a9688908adaf9e24`) ... ID of the account to perform the action on
+    + algorithmID (required, string, `0c6b2cd1cb714cf5860f3d8e83c31a8e`) ... ID of the algorithm to perform the action on
 
 ### getRecommendationAlgorithm [GET]
 Retrieve an algorithm.
@@ -1356,7 +1742,7 @@ Retrieve an algorithm.
 ### updateRecommendationAlgorithm [PUT]
 Update an algorithm.
 
-The request may contain the field `id`, which is ignored; `algorithm_id` is used instead.
+The request may contain the field `id`, which is ignored; `algorithmID` is used instead.
 
 + Request (application/json)
 
@@ -1448,11 +1834,11 @@ Delete an algorithm.
         
 # Group AB tests
 
-## AB tests list [/accounts/{account_id}/abTests]
+## AB tests [/accounts/{accountID}/abTests]
 
 + Parameters
 
-    + account_id (required, string, `4959bc0ab5f24ac2a9688908adaf9e24`) ... ID of the account to perform the action on
+    + accountID (required, string, `4959bc0ab5f24ac2a9688908adaf9e24`) ... ID of the account to perform the action on
 
 ### listABTests [GET]
 List all AB tests.
@@ -1468,14 +1854,16 @@ List all AB tests.
                     {
                         "id": "A",
                         "name": "Old-style shopping tray",
-                        "someField1": "someValue1",
-                        "someField2": "someValue2"
+                        "weight": 50,
+                        "winner": true,
+                        "baseline": true
                     },
                     {
                         "id": "B",
                         "name": "New-style shopping tray",
-                        "someField1": "someValue1",
-                        "someField2": "someValue2"
+                        "weight": 50,
+                        "winner": false,
+                        "baseline": false
                     }
                 ]
             },
@@ -1486,21 +1874,24 @@ List all AB tests.
                 "variants": [
                     {
                         "id": "A",
-                        "name": "Persoo off"
-                        "someField1": "someValue1",
-                        "someField2": "someValue2"
+                        "name": "Persoo off",
+                        "weight": 50,
+                        "winner": false,
+                        "baseline": true
                     },
                     {
                         "id": "B",
                         "name": "Simple product recommendation",
-                        "someField1": "someValue1",
-                        "someField2": "someValue2"
+                        "weight": 50,
+                        "winner": true,
+                        "baseline": false
                     },
                     {
                         "id": "C",
                         "name": "Personalized product recommendation",
-                        "someField1": "someValue1",
-                        "someField2": "someValue2"
+                        "weight": 50,
+                        "winner": false,
+                        "baseline": false
                     }
                 ]
             }
@@ -1518,14 +1909,16 @@ Create a new AB test.
                 {
                     "id": "A",
                     "name": "Old layout",
-                    "someField1": "someValue1",
-                    "someField2": "someValue2"
+                    "weight": 50,
+                    "winner": true,
+                    "baseline": true
                 },
                 {
                     "id": "B",
                     "name": "New layout",
-                    "someField1": "someValue1",
-                    "someField2": "someValue2"
+                    "weight": 50,
+                    "winner": false,
+                    "baseline": false
                 }
             ]
         }
@@ -1540,25 +1933,27 @@ Create a new AB test.
                 {
                     "id": "A",
                     "name": "Old layout",
-                    "someField1": "someValue1",
-                    "someField2": "someValue2"
+                    "weight": 50,
+                    "winner": true,
+                    "baseline": true
                 },
                 {
                     "id": "B",
                     "name": "New layout",
-                    "someField1": "someValue1",
-                    "someField2": "someValue2"
+                    "weight": 50,
+                    "winner": false,
+                    "baseline": false
                 }
             ]
         }
 
-## AB test [/accounts/{account_id}/abTests/{ab_test_id}]
+## AB test [/accounts/{accountID}/abTests/{abTestID}]
 A single AB test object with all its details.
 
 + Parameters
 
-    + account_id (required, string, `4959bc0ab5f24ac2a9688908adaf9e24`) ... ID of the account to perform the action on
-    + ab_test_id (required, string, `98e6bed351ed47c1878bd8af9374434d`) ... ID of the AB test to perform the action on
+    + accountID (required, string, `4959bc0ab5f24ac2a9688908adaf9e24`) ... ID of the account to perform the action on
+    + abTestID (required, string, `98e6bed351ed47c1878bd8af9374434d`) ... ID of the AB test to perform the action on
 
 ### getABTest [GET]
 Retrieve an AB test.
@@ -1573,14 +1968,16 @@ Retrieve an AB test.
                 {
                     "id": "A",
                     "name": "Old layout",
-                    "someField1": "someValue1",
-                    "someField2": "someValue2"
+                    "weight": 50,
+                    "winner": true,
+                    "baseline": true
                 },
                 {
                     "id": "B",
                     "name": "New layout",
-                    "someField1": "someValue1",
-                    "someField2": "someValue2"
+                    "weight": 50,
+                    "winner": false,
+                    "baseline": false
                 }
             ]
         }
@@ -1594,7 +1991,7 @@ Retrieve an AB test.
 ### updateABTest [PUT]
 Update an AB test.
 
-The request may contain the field `id`, which is ignored; `ab_test_id` is used instead.
+The request may contain the field `id`, which is ignored; `abTestID` is used instead.
 
 + Request (application/json)
 
@@ -1606,20 +2003,23 @@ The request may contain the field `id`, which is ignored; `ab_test_id` is used i
                 {
                     "id": "A",
                     "name": "Old layout",
-                    "someField1": "someValue1",
-                    "someField2": "someValue2"
+                    "weight": 50,
+                    "winner": true,
+                    "baseline": true
                 },
                 {
                     "id": "B",
                     "name": "New layout without chatbox",
-                    "someField1": "someValue1",
-                    "someField2": "someValue2"
+                    "weight": 50,
+                    "winner": false,
+                    "baseline": false
                 },
                 {
                     "id": "C",
                     "name": "New layout with chatbox",
-                    "someField1": "someValue1",
-                    "someField2": "someValue2"
+                    "weight": 50,
+                    "winner": false,
+                    "baseline": false
                 }
             ]
         }
@@ -1634,20 +2034,23 @@ The request may contain the field `id`, which is ignored; `ab_test_id` is used i
                 {
                     "id": "A",
                     "name": "Old layout",
-                    "someField1": "someValue1",
-                    "someField2": "someValue2"
+                    "weight": 50,
+                    "winner": true,
+                    "baseline": true
                 },
                 {
                     "id": "B",
                     "name": "New layout without chatbox",
-                    "someField1": "someValue1",
-                    "someField2": "someValue2"
+                    "weight": 50,
+                    "winner": false,
+                    "baseline": false
                 },
                 {
                     "id": "C",
                     "name": "New layout with chatbox",
-                    "someField1": "someValue1",
-                    "someField2": "someValue2"
+                    "weight": 50,
+                    "winner": false,
+                    "baseline": false
                 }
             ]
         }
@@ -1668,14 +2071,259 @@ Delete an AB test.
         {
             "error": "AB test not found."
         }
-
-## Statistics [/accounts/{account_id}/abTests/{ab_test_id}/statistics?timestampFrom={timestamp_from}&timestampTo={timestamp_to}]
+        
+## AB tests statistics [/accounts/{accountID}/abTests/statistics?timestampFrom={timestampFrom}&timestampTo={timestampTo}]
 
 + Parameters
-    + account_id (required, string, `4959bc0ab5f24ac2a9688908adaf9e24`) ... ID of the account to perform the action on
-    + ab_test_id (required, string, `98e6bed351ed47c1878bd8af9374434d`) ... ID of the AB test to get the statistics of
-    + timestamp_from (required, long, `43932000`) ... start the statistics with the day containing this timestamp (in UTC)
-    + timestamp_to (required, long, `300000000`) ... end the statistics with the day containing this timestamp (in UTC)
+    + accountID (required, string, `4959bc0ab5f24ac2a9688908adaf9e24`) ... ID of the account to perform the action on
+    + timestampFrom (required, long, `43932000`) ... start the statistics with the day containing this timestamp (in UTC)
+    + timestampTo (required, long, `300000000`) ... end the statistics with the day containing this timestamp (in UTC)
+
+### getABTestsStatistics [GET]
+Get daily statistics for all AB tests.
+
+If a metric isn't available for a particular day, `null` is used instead of a number value.
+
+Metrics in the root level are the metrics for all variants aggregated. (The values in the example below are random and don't respect this.)
+
++ Response 200 (application/json)
+
+        [
+            {
+                "id": "e23fc94bbcc947f5aa4872c5fc04966b",
+                "timestamps": [
+                    0,
+                    86400000,
+                    172800000,
+                    259200000
+                ],
+                "dates": [
+                    "1970-01-01",
+                    "1970-01-02",
+                    "1970-01-03",
+                    "1970-01-04"
+                ],
+                "metrics": {
+                    "clicks": [
+                        1087,
+                        5734,
+                        2652,
+                        2722
+                    ],
+                    "impressions": [
+                        9871,
+                        7736,
+                        3509,
+                        6366
+                    ],
+                    "someOtherMetric1": [
+                        0.003668946172197818,
+                        0.2178408492721543,
+                        0.028777068662288574,
+                        0.9506455736459639
+                    ],
+                    "someOtherMetric2": [
+                        879,
+                        -225,
+                        -647,
+                        -715
+                    ]
+                },
+                "variants": {
+                    "A": {
+                        "metrics": {
+                            "clicks": [
+                                200,
+                                825,
+                                309,
+                                421
+                            ],
+                            "impressions": [
+                                214,
+                                5741,
+                                3476,
+                                7961
+                            ],
+                            "someOtherMetric1": [
+                                0.6555852127295537,
+                                0.16896041396298656,
+                                0.523081442902202,
+                                0.4299017917097032
+                            ],
+                            "someOtherMetric2": [
+                                -84,
+                                485,
+                                639,
+                                -562
+                            ]
+                        }
+                    },
+                    "B": {
+                        "metrics": {
+                            "clicks": [
+                                312,
+                                782,
+                                1194,
+                                3461
+                            ],
+                            "impressions": [
+                                4848,
+                                3822,
+                                2828,
+                                4781
+                            ],
+                            "someOtherMetric1": [
+                                0.6530000210379121,
+                                0.4907884562323944,
+                                0.9646868032420256,
+                                0.572847940496758
+                            ],
+                            "someOtherMetric2": [
+                                -538,
+                                958,
+                                -633,
+                                -935
+                            ]
+                        }
+                    },
+                    "C": {
+                        "metrics": {
+                            "clicks": [
+                                null,
+                                null,
+                                67,
+                                344
+                            ],
+                            "impressions": [
+                                null,
+                                null,
+                                884,
+                                722
+                            ],
+                            "someOtherMetric1": [
+                                null,
+                                null,
+                                0.2757569125503805,
+                                0.1403655010726006
+                            ],
+                            "someOtherMetric2": [
+                                null,
+                                null,
+                                444,
+                                -424
+                            ]
+                        }
+                    }
+                }
+            },
+            {
+                "id": "d06461205e5e4abbaa185dec05c802a9",
+                "timestamps": [
+                    0,
+                    86400000,
+                    172800000,
+                    259200000
+                ],
+                "dates": [
+                    "1970-01-01",
+                    "1970-01-02",
+                    "1970-01-03",
+                    "1970-01-04"
+                ],
+                "metrics": {
+                    "clicks": [
+                        8921,
+                        3532,
+                        983,
+                        1257
+                    ],
+                    "impressions": [
+                        2811,
+                        10439,
+                        8328,
+                        1024
+                    ],
+                    "someOtherMetric1": [
+                        0.8524400094267622,
+                        0.9835282205407248,
+                        0.5331655147155644,
+                        0.03159187667912333
+                    ],
+                    "someOtherMetric2": [
+                        322,
+                        68439,
+                        12,
+                        -8992
+                    ]
+                },
+                "variants": {
+                    "A": {
+                        "metrics": {
+                            "clicks": [
+                                892,
+                                242,
+                                891,
+                                238
+                            ],
+                            "impressions": [
+                                578,
+                                2383,
+                                8491,
+                                2892
+                            ],
+                            "someOtherMetric1": [
+                                0.2245794265748755,
+                                0.767712355737353,
+                                0.48843346243323227,
+                                0.014840019490347522
+                            ],
+                            "someOtherMetric2": [
+                                -892,
+                                211,
+                                2393,
+                                -178
+                            ]
+                        }
+                    },
+                    "B": {
+                        "metrics": {
+                            "clicks": [
+                                231,
+                                8943,
+                                182,
+                                8293
+                            ],
+                            "impressions": [
+                                7823,
+                                3211,
+                                178,
+                                5811
+                            ],
+                            "someOtherMetric1": [
+                                0.4540958393612988,
+                                0.12314807796229665,
+                                0.8826032985473886,
+                                0.4288217771902769
+                            ],
+                            "someOtherMetric2": [
+                                -613,
+                                121,
+                                -3829,
+                                572
+                            ]
+                        }
+                    }
+                }
+            }
+        ]
+
+## AB test statistics [/accounts/{accountID}/abTests/{abTestID}/statistics?timestampFrom={timestampFrom}&timestampTo={timestampTo}]
+
++ Parameters
+    + accountID (required, string, `4959bc0ab5f24ac2a9688908adaf9e24`) ... ID of the account to perform the action on
+    + abTestID (required, string, `98e6bed351ed47c1878bd8af9374434d`) ... ID of the AB test to get the statistics of
+    + timestampFrom (required, long, `43932000`) ... start the statistics with the day containing this timestamp (in UTC)
+    + timestampTo (required, long, `300000000`) ... end the statistics with the day containing this timestamp (in UTC)
 
 ### getABTestStatistics [GET]
 Get daily statistics for an AB test.
@@ -1684,9 +2332,10 @@ If a metric isn't available for a particular day, `null` is used instead of a nu
 
 Metrics in the root level are the metrics for all variants aggregated. (The values in the example below are random and don't respect this.)
 
-+ Response 200
++ Response 200 (application/json)
 
         {
+            "id": "e23fc94bbcc947f5aa4872c5fc04966b",
             "timestamps": [
                 0,
                 86400000,
@@ -1752,10 +2401,7 @@ Metrics in the root level are the metrics for all variants aggregated. (The valu
                             639,
                             -562
                         ]
-                    },
-                    "someField1": true,
-                    "someField2": 1984,
-                    "someField3": "stringValue"
+                    }
                 },
                 "B": {
                     "metrics": {
@@ -1783,10 +2429,7 @@ Metrics in the root level are the metrics for all variants aggregated. (The valu
                             -633,
                             -935
                         ]
-                    },
-                    "someField1": true,
-                    "someField2": 1984,
-                    "someField3": "stringValue"
+                    }
                 },
                 "C": {
                     "metrics": {
@@ -1814,15 +2457,9 @@ Metrics in the root level are the metrics for all variants aggregated. (The valu
                             444,
                             -424
                         ]
-                    },
-                    "someField1": true,
-                    "someField2": 1984,
-                    "someField3": "stringValue"
+                    }
                 }
-            },
-            "someField1": true,
-            "someField2": 1984,
-            "someField3": "stringValue"
+            }
         }
 
 + Response 404
@@ -1830,3 +2467,125 @@ Metrics in the root level are the metrics for all variants aggregated. (The valu
         { 
             "error": "AB test not found."
         }
+        
+# Group Account Accesses
+
+## Account accesses [/accounts/{accountID}/accesses]
+
++ Parameters
+
+    + accountID (required, string, `4959bc0ab5f24ac2a9688908adaf9e24`) ... ID of the account to perform the action on
+
+### listAccountAccesses [GET]
+List all accesses to this account.
+
++ Response 200 (application/json)
+
+        [
+            {
+                "id": "e8fb4ab5e6f44912a911fead7f286363"
+                "email": "test@email.com"
+                "name": "Jakub"
+            },
+            {
+                "id": "daf38a59e94948bfbdacbd4a34eccb47"
+                "email": "test3@email.com"
+                "name": "Alice"
+            }
+        ]
+        
++ Response 404
+
+### newAccountAccess [POST]
+Adds a user an access to the account.
+    
++ Request (application/json)
+        
+        {
+            "id": "daf38a59e94948bfbdacbd4a34eccb47"
+        }
+            
++ Response 201
+
+        {
+            "id": "daf38a59e94948bfbdacbd4a34eccb47"
+            "email": "test3@email.com"
+            "name": "Alice"
+        }
+        
++ Response 404
++ Response 409
+
+## Account access [/accounts/{accountID}/accesses/{userID}]
+
++ Parameters
+
+    + accountID (required, string, `4959bc0ab5f24ac2a9688908adaf9e24`) ... ID of an account
+    + userID (required, string, `daf38a59e94948bfbdacbd4a34eccb47`) ... ID of a user
+    
+### getAccountAccess [GET]
+Retrieve an account access.
+
++ Response 200 (application/json)
+
+        {
+            "id": "daf38a59e94948bfbdacbd4a34eccb47",
+            "email": "test3@email.com",
+            "name": "Alice"
+        }
+        
++ Response 404 (application/json)
+
+        {
+            "error": "Account not found."
+        }
+
++ Response 404 (application/json)
+
+        {
+            "error": "Account access not found."
+        }
+        
+### deleteAccountAccess [DELETE]
+Deletes an account access.
+
++ Response 204
+
++ Response 403
+
++ Response 404 (application/json)
+
+        {
+            "error": "Account not found."
+        }
+
++ Response 404 (application/json)
+
+        {
+            "error": "Account access not found."
+        }
+
+## Invite user [/accounts/{accountID}/accesses/inviteUser]
+
+### inviteUser [POST]
+Invite a user to get access to the account.
+If the user exists, he receives access to the account. 
+If the user doesn't exist, an error that you must register user first is returned.
+(In the future, method will send invitation emails for nonexisting users.)
+
++ Request (application/json)
+
++ Response 200 (application/json)
+
+        {
+            "id": "daf38a59e94948bfbdacbd4a34eccb47",
+            "email": "test3@email.com",
+            "name": "Alice"
+        }
+
++ Response 404 (application/json)
+
+        {
+            "error": "User not found."
+        }
+        
