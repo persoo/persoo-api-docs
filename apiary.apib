@@ -5484,3 +5484,176 @@ Please note that this method is rather temporary and will be replaced with a mor
                 "idValue": "ABABUsGbxF3eUw7y7537xpc7"
             }
         ]
+        
+# Group Reports
+
+Using this API, you can access collected statistics.
+
+## Reports [/accounts/{accountID}/reports?table={table}&from={from}&to={to}&filter={filter}&dimensions={dimensions}&metrics={metrics}&sort={sort}&limit={limit}]
+
++ Parameters
+
+    + accountID (required, string, `4959bc0ab5f24ac2a9688908adaf9e24`) ... ID of an account
+    + table (required, string, `offers`) ... table to search in
+    + from (required, string, `2016-03-19`) ... start date (yyyy-MM-dd)
+    + to (required, string, `2016-05-26`) ... end date (yyyy-MM-dd)
+    + filter (optional, string, `abTestID==123,offerID!=456`) ... filter records with these dimensions only (supported operators are `==` and `!=`)
+    + dimensions (required, string, `offerID,abTestID`) ... aggregate over these dimensions
+    + metrics (required, string, `visits,interactions`) ... calculate sum of these metrics for each aggregated result
+    + sort (optional, string, `+days,-visits`) ... sort by dimension `day` ascendingly (+), if the same, sort by metric `visits` descendingly (-)
+    + limit (required, int, `100`) ... return at the most this number of records
+    
+### getReports [GET]
+This API allows you to examine and analyze collected statistics. For example, lets say you want to know how well did various A/B tests perform in terms of sells count. Ideally, you'd want to see comparison for each category.
+
+Please note that the following is just an example and actual naming of dimensions and metrics may differ.
+
+This can be easily done by setting `dimension==categoryID,abTestID` and `metrics=buy,addToBasket`. You'll get something like:
+
+        [
+            {
+                "categoryID": "1",
+                "abTestID": "1",
+                "metrics": {
+                    "buy": 513.0,
+                    "addToBasket", 1024.0
+                }
+            },
+            {
+                "categoryID": "1",
+                "abTestID": "2",
+                "metrics": {
+                    "buy": 418.0,
+                    "addToBasket", 1213.0
+                }
+            },
+            {
+                "categoryID": "2",
+                "abTestID": "1",
+                "metrics": {
+                    "buy": 3.0,
+                    "addToBasket", 8.0
+                }
+            },
+            {
+                "categoryID": "2",
+                "abTestID": "2",
+                "metrics": {
+                    "buy": 4.0,
+                    "addToBasket", 7.0
+                }
+            },
+            // ...
+        ]
+
+You immediately see that A/B test 2 performed worse for category 1. You don't, however, care about category 2 as it have very low sells count for both A/B test variants. So you simply add `sort=-buy` and get something like the following:
+
+        [
+            {
+                "categoryID": "3",
+                "abTestID": "1",
+                "metrics": {
+                    "buy": 3831.0,
+                    "addToBasket", 5912.0
+                }
+            },
+            {
+                "categoryID": "3",
+                "abTestID": "2",
+                "metrics": {
+                    "buy": 3635.0,
+                    "addToBasket", 4215.0
+                }
+            },
+            {
+                "categoryID": "4",
+                "abTestID": "1",
+                "metrics": {
+                    "buy": 2125.0,
+                    "addToBasket", 3213.0
+                }
+            },
+            {
+                "categoryID": "4",
+                "abTestID": "2",
+                "metrics": {
+                    "buy": 3238.0,
+                    "addToBasket", 4123.0
+                }
+            },
+            // ...
+        ]
+        
+Now you see what's the most relevant. A/B test 2 performed slightly worse for category 1, but significantly better for category 2. You can leverage this information for fine tunings and optimizations - starting with the things
+which make the greatest impact.
+
+Available tables, metrics and dimensions:
+
+        {
+            table: "offers",
+            dimensions: [
+                "day",          // i.e "2016-07-08",
+                "locationID",   // i.e. "testLocationID",
+                "offerID",      // i.e. "testOfferID",
+                "variantID",    // i.e. "default" (deprecated - it's only for abtest variants
+                "abTestVariant",    // i.e. "myABtestID:myVariantID",
+                "abTestBucket"      // i.e. "c"
+            ],
+            metrics: [
+                "impression",           // absolute events count
+                "impression_sessions",  // number of session with the event
+                "click",
+                "click_sessions",
+                "<customEvent>",        // for all your custom events
+                "<customEvent>_sessions",
+                
+                "transactions",
+                "transactionRevenue",
+                "transactionShipping",
+                "transactionTax",
+                "itemsQuantity",    // sum of item quantities
+                "uniquePurchases"   // sum of unique items in transactions
+            ]
+        }
+
+
++ Response 200 (application/json)
+
+        [
+            {
+                "day": "2016-05-26T00:00:00.000Z",
+                "metrics": {
+                    "visits": 1.0
+                }
+            },
+            {
+                "day": "2016-05-30T00:00:00.000Z",
+                "metrics": {
+                    "visits": 194.0
+                }
+            },
+            {
+                "day": "2016-06-02T00:00:00.000Z",
+                "metrics": {
+                    "visits": 37.0
+                }
+            },
+            {
+                "day": "2016-06-03T00:00:00.000Z",
+                "metrics": {
+                    "visits": 30.0
+                }
+            },
+            {
+                "day": "2016-06-08T00:00:00.000Z",
+                "metrics": {
+                    "visits": 108.0
+                }
+            },
+            {
+                "day": "2016-06-09T00:00:00.000Z",
+                "metrics": {
+                    "visits": 14.0
+                }
+            }
+        ]
