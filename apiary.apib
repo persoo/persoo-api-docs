@@ -5589,32 +5589,145 @@ which make the greatest impact.
 
 Available tables, metrics and dimensions:
 
-        {
-            table: "offers",
-            dimensions: [
-                "day",          // i.e "2016-07-08",
-                "locationID",   // i.e. "testLocationID",
-                "offerID",      // i.e. "testOfferID",
-                "variantID",    // i.e. "default" (deprecated - it's only for abtest variants
-                "abTestVariant",    // i.e. "myABtestID:myVariantID",
-                "abTestBucket"      // i.e. "c"
-            ],
-            metrics: [
-                "impression",           // absolute events count
-                "impression_sessions",  // number of session with the event
-                "click",
-                "click_sessions",
-                "<customEvent>",        // for all your custom events
-                "<customEvent>_sessions",
-                
-                "transactions",
-                "transactionRevenue",
-                "transactionShipping",
-                "transactionTax",
-                "itemsQuantity",    // sum of item quantities
-                "uniquePurchases"   // sum of unique items in transactions
-            ]
-        }
+        [
+            {
+                table: "account", // ???rename table to "events" ???
+                dimensions: [
+                    "day",          // i.e "2016-07-08",
+                    "abTestVariant",    // i.e. "myABtestID:myVariantID",
+                    "abTestBucket",      // i.e. "c"
+                    "idType": "browserID", // best identificaton type
+                    "identificationState", // "anonymous" | "identified"
+
+                    "event",            // i.e. "pageview",
+                    "pageType"          // i.e. "homepage"                    
+                ],
+                metrics: [
+                    "event",           // absolute count of events with name from dimension event
+                    "event_sessions",  // number of session with the event
+
+                    // following metrics are non-zero only for event "transaction"
+                    
+                    // totals for the eshop
+                    "transactions",
+                    "transactionRevenue",
+                    "transactionShipping",
+                    "transactionTax",
+                    "itemsQuantity",    // sum of item quantities
+                    "uniquePurchases",   // sum of unique items in transactions
+                    
+                    // attributed to some persoo offer in last 30days
+                    "transactionRevenue_windowAttr",
+                    "transactionShipping_windowAttr",
+                    "transactionTax_windowAttr",
+                    "transactions_windowAttr",
+                    "itemsQuantity_windowAttr",
+                    "uniquePurchases_windowAttr",
+                    
+                    // attributed to some persoo offer in last session
+                    "transactionRevenue_lastSession",
+                    "transactionShipping_lastSession",
+                    "transactionTax_lastSession",
+                    "transactions_lastSession",
+                    "itemsQuantity_lastSession",
+                    "uniquePurchases_lastSession",
+                    
+                    // only revenue from successfully recommended and purchased products
+                    "recommendedItemsRevenue",
+                    "recommendedItemsQuantity",
+                    "recommendedUniquePurchases"
+                ]
+            },
+            {
+                table: "offers",
+                dimensions: [
+                    "day",          // i.e "2016-07-08",
+
+                    "abTestVariant",    // i.e. "myABtestID:myVariantID",
+                    "abTestBucket",      // i.e. "c"
+                    
+                    "offerID",      // i.e. "testOfferID",
+                    "locationID",   // i.e. "testLocationID",
+                    "class",        // "scenario", "webWidget", "email", ...
+                    "pageType"      // if locationID exists, then it is pageType from location definition
+                ],
+                metrics: [
+                    "impression",           // absolute events count
+                    "impression_sessions",  // number of session with the event
+                    "click",
+                    "click_sessions",
+                    "<customEvent>",        // for all your custom events
+                    "<customEvent>_sessions",
+                    
+                    "conversion",           // successfull offer with simple conversion goal
+                    
+                    // attributed to some persoo offer in last 30days
+                    "transactionRevenue_windowAttr",
+                    "transactionShipping_windowAttr",
+                    "transactionTax_windowAttr",
+                    "transactions_windowAttr",
+                    "itemsQuantity_windowAttr",
+                    "uniquePurchases_windowAttr",
+                    
+                    // attributed to some persoo offer in last session
+                    "transactionRevenue_lastSession",
+                    "transactionShipping_lastSession",
+                    "transactionTax_lastSession",
+                    "transactions_lastSession",
+                    "itemsQuantity_lastSession",
+                    "uniquePurchases_lastSession",
+                    
+                    // only revenue from successfully recommended and purchased products
+                    "recommendedItemsRevenue",
+                    "recommendedItemsQuantity",
+                    "recommendedUniquePurchases"
+                ]
+            },
+            {
+                table: "products",
+                dimensions: [
+                    "day",          // i.e "2016-07-08",
+                    
+                    "abTestVariant",    // i.e. "myABtestID:myVariantID",
+                    "abTestBucket"      // i.e. "c"
+                    
+                    "itemID",
+                    "itemGroupID",
+                    
+                    // currently following dimensions may be missing for some metrics
+                    "brand",
+                    "categoryID",
+                    "section",
+                    "productType",
+                    
+                    "locationID"      // locationID or other list name, where the metrics had happen
+                                      // "default" means no location
+                ],
+                metrics: [
+                    "impression",           // impression in some location/list
+                    "impression_sessions",  // number of session with the event
+                    "click",
+                    "click_sessions",
+                    "view",        // product detail view
+                    "view_sessions",
+                    
+                    "successfullyRecommended",
+                    
+                    // global eshop metrics
+                    "transactions",
+                    "transactionRevenue",
+                    "transactionShipping",
+                    "transactionTax",
+                    "itemsQuantity",    // sum of item quantities
+                    "uniquePurchases",   // sum of unique items in transactions
+                    
+                    // only revenue from successfully recommended and purchased products
+                    "recommendedItemsRevenue",
+                    "recommendedItemsQuantity",
+                    "recommendedUniquePurchases"
+                ]
+            }        
+        ]
 
 
 + Response 200 (application/json)
