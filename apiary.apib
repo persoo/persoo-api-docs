@@ -5497,13 +5497,13 @@ Using this API, you can access collected statistics.
     + table (required, string, `offers`) ... table to search in
     + from (required, string, `2016-03-19`) ... start date (yyyy-MM-dd)
     + to (required, string, `2016-05-26`) ... end date (yyyy-MM-dd)
-    + filter (optional, string, `d:abTestID==123,d:offerID!=456`) ... filter records with these dimensions only (supported operators are `==` and `!=`. Dimensions in filters must have prefix `d:` and metrics `m:` to be able to distinguish between metric and dimension with the same name.)
+    + filter (optional, string, `d:abTestID==123,d:offerID!=456,d:offerID~123;124;125`) ... filter records with these dimensions only (supported operators are `==` and `!=` and `~`. Dimensions in filters must have prefix `d:` and metrics `m:` to be able to distinguish between metric and dimension with the same name. `~` is IN operator, which means that the dimension must have one of the given values separated by `;`)
     + dimensions (required, string, `offerID,abTestID`) ... aggregate over these dimensions
     + metrics (required, string, `visits,interactions`) ... calculate sum of these metrics for each aggregated result
     + sort (optional, string, `+days,-visits`) ... sort by dimension `day` ascendingly (+), if the same, sort by metric `visits` descendingly (-)
     + limit (required, int, `100`) ... return at the most this number of records
     
-### getReports [GET]
+### getReports [GET]Adding
 This API allows you to examine and analyze collected statistics.
 For example, lets say you want to know how well did various A/B tests perform in terms
 of sells count. Ideally, you'd want to see comparison for each category.
