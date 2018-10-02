@@ -4672,3 +4672,135 @@ Available tables, metrics and dimensions:
                 }
             }
         ]
+
+
+# Group Metadata
+
+Use metadata to learn about configured tables and variables in an account.
+
+## list groups [/accounts/{accountID}/metadata/?environment={env}]
+
++ Parameters
+
+    + accountID (required, string, `4959bc0ab5f24ac2a9688908adaf9e24`) ... ID of an account
+    + env (required, string, `p`) ... environment, either `p` for production of `test` for test
+
+### getGroups [GET]
+Get data groups / data tables. 
+
++ Response 200 (application/json)
+
+        [
+            "dataTypes",
+            "event",
+            "dateTime",
+            "profile",
+            "admin.entity.abTest",
+            "admin.entity.location",
+            "admin.entity.pageType",
+            "admin.entity.export",
+            "admin.entity.algorithm",
+            "admin.entity.offer",
+            "admin.entity.import",
+            "ads.products",
+            "ads.categories",
+            "ads.customDataTable",
+            "ads.queries",
+            "statistics.account",
+            "statistics.offers",
+            "statistics.products",
+            "statistics.queries"
+        ]
+
+## list variables in a group [/accounts/{accountID}/metadata/{group}/listVariables?environment={env}]
+
++ Parameters
+
+    + accountID (required, string, `4959bc0ab5f24ac2a9688908adaf9e24`) ... ID of an account
+    + group (required, string, `dateTime`) ... metadata group/table
+    + env (required, string, `p`) ... environment, either `p` for production of `test` for test
+
+### listVariables [GET]
+List all available variables in the metadata group/table. 
+Structure of each variable:
+
+- *id* correspond to the path in visitor profile, i.e. "date.timestamp" or "db.transactions.total"
+- *type* correspond to data type defined in metadata group "dataTypes" (variable ids of these group defines data types used in all other groups).
+- *name* name of the variable
+- *description* longer description of the variable, sometimes with examples
+
+Small exception is group 'dataTypes'.
+
++ Response 200 (application/json)
+
+        {
+            "date.timeInMillis": {
+                "description": "Time at the moment of request processing.",
+                "name": "Current Time",
+                "type": "time"
+            },
+            "date.timestamp": {
+                "description": "Date at the moment of request processing.",
+                "name": "Current Date",
+                "type": "timestamp"
+            },
+            "date.weekDay": {
+                "description": "Week Day at the moment of request processing.",
+                "name": "Current Week Day",
+                "type": "weekDay"
+            }
+        }
+
+## distinct values of a variable [/accounts/{accountID}/metadata/{group}/distinctValues/{field}?environment={env}&q={query}]
+
++ Parameters
+
+    + accountID (required, string, `4959bc0ab5f24ac2a9688908adaf9e24`) ... ID of an account
+    + group (required, string, `dateTime`) ... metadata group/table
+    + env (required, string, `p`) ... environment, either `p` for production of `test` for test
+    + field (required, string, `productType`) ... 
+    + query (optional, string, `k`) ... searched string (what user typed into select box)
+
+### getDistinctValues [GET]
+Return all distinct values of a given variable (i.e. of a field in ADS table), which 
+match search query given by q parameter.
+
+Method helps in UI to produce select boxes with autocomplete.
+
++ Response 200 (application/json)
+
+        [
+            "ksiltovky",
+            "kratasy",
+            "klobouky",
+            "kalhoty",
+            "kosile",
+            "kulichy"
+        ]
+        
+        
+## search in group [/accounts/{accountID}/metadata/{group}/search?environment={env}&fields={commaSepFields}&q={query}&includeFields={commaSepIncludeFields}]
+
++ Parameters
+
+    + accountID (required, string, `4959bc0ab5f24ac2a9688908adaf9e24`) ... ID of an account
+    + group (required, string, `dateTime`) ... metadata group/table
+    + env (required, string, `p`) ... environment, either `p` for production of `test` for test
+    + commaSepFields (required, string, `itemID,itemGroupID`) ... comma separated fields, where to search for query
+    + query (optional, string, `k`) ... searched string (what user typed into select box)
+    + commaSepIncludeFields (optional, string, `itemID,title`) ... comma separate include fields, fields to be returned for each item
+
+### search [GET]
+Return all items of the metadata group/table matching the search criteria.
+
+If url does not contain `includeFields`, method returns all available variables/fields with each item found.
+If used, method returns only listed include fields.
+
++ Response 200 (application/json)
+
+        [
+            {
+                "itemID": "11815",
+                "title": "P\u0159\u00edv\u011bsek na krk Tha Alumni Clothing Gold Chain \"A\" zlat\u00e1"
+            }
+        ]
