@@ -4804,3 +4804,33 @@ If used, method returns only listed include fields.
                 "title": "P\u0159\u00edv\u011bsek na krk Tha Alumni Clothing Gold Chain \"A\" zlat\u00e1"
             }
         ]
+        
+## multi-fetch items by unique ids [/accounts/{accountID}/metadata/{group}/fetch/{field}?environment={env}&values={commaSepValues}&includeFields={commaSepIncludeFields}]
+
++ Parameters
+
+    + accountID (required, string, `4959bc0ab5f24ac2a9688908adaf9e24`) ... ID of an account
+    + group (required, string, `ads.products`) ... metadata group/table
+    + field (required, string, `itemID`)
+    + env (required, string, `p`) ... environment, either `p` for production of `test` for test
+    + commaSepValues (required, string, `"1886","1187"`) ... comma separated id values. Note: pass it as JSON, string values in quotes, numeric without quotes.
+    + commaSepIncludeFields (optional, string, `itemID,title`) ... comma separate include fields, fields to be returned for each item
+
+### fetch [GET]
+Return all items of the metadata group/table matching the search criteria.
+
+If url does not contain `includeFields`, method returns all available variables/fields with each item found.
+If used, method returns only listed include fields.
+
++ Response 200 (application/json)
+ 
+        {
+            "11815": {
+                "itemID": "11815",
+                "title": "P\u0159\u00edv\u011bsek na krk Tha Alumni Clothing Gold Chain \"A\" zlat\u00e1"
+            },
+            "11816": {
+                "itemID": "11816",
+                "title": "Kryt na Iphone 6 Tha Alumni Clothing 24K Black \u010dern\u00e1 / zlat\u00e1"
+            }
+        }
