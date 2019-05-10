@@ -4681,12 +4681,13 @@ Available tables, metrics and dimensions:
 
 Use metadata to learn about configured tables and variables in an account.
 
-## list groups [/accounts/{accountID}/metadata/?environment={env}]
+## list groups [/accounts/{accountID}/metadata/?environment={env}&includeVariables={inclVars}]
 
 + Parameters
 
     + accountID (required, string, `4959bc0ab5f24ac2a9688908adaf9e24`) ... ID of an account
     + env (required, string, `p`) ... environment, either `p` for production of `test` for test
+    + inclVars (optional, string, `false`) ... include variables for each group or just return list of groups
 
 ### getGroups [GET]
 Get data groups / data tables. 
