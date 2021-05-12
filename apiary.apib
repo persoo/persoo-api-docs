@@ -1,5 +1,5 @@
 FORMAT: 1A
-HOST: http://adminapi.persoo.cz
+HOST: https://adminapi.persoo.ai
 
 # Persoo administration API
 API for configuring Persoo accounts. 
@@ -7,7 +7,7 @@ API for configuring Persoo accounts.
 Persoo has two APIs - one for administration (this one) and another for reporting web visitors' behavior, querying for
 recommendations and other web personalizations ([RTP API](http://docs.persoortp.apiary.io/))
 
-**Tip:** Persoo administration running at admin.persoo.cz is a JavaScript application 
+**Tip:** Persoo administration running at admin.persoo.ai is a JavaScript application 
 running in your browser using this REST API. If you want to play with this API, just 
 open Persoo administration, open Chrome console, and watch requests in network communication.
 You will see exact data for your Persoo account.
@@ -4363,7 +4363,7 @@ If the user doesn't exist, an error that you must register user first is returne
 All visitors of a website have visitor profile in Persoo. 
 Profile is either anonymous (just identified with 1 anonymous browser ID) or
 identified by several identifications. Each identification is specified by pair idType, idValue.
-For example email:my@persoo.cz or login:12345.
+For example email:my@persoo.ai or login:12345.
 
 ## Visitor [/accounts/{accountID}/visitors/{idType}/{idValue}]
 
