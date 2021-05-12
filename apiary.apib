@@ -537,6 +537,119 @@ Renders the account.
                 }
             ]
         }
+        
+## Update entity [/accounts/{accountID}/updateEntity]
+
++ Parameters
+    + accountID (required, string, `4959bc0ab5f24ac2a9688908adaf9e24`) ... ID of the account to perform the action on
+
+### updateEntity [POST]
+Updates the entity items. Updated items are identified by 'keyField' value. This field should be the unique key for the entity. Maximum size of updates map is 100. 'keyMustExist' request attribute is optional and the default value is false.
+
+Please note that this method is only available for account admins and superusers.
+
+
++ Request (application/json)
+
+    + `entity` ID of updated entity - e.g. products. Required.
+    + `environment` Environment of the entity - typically 'p' or 'test' ('p' means production). Required.
+    + `keyField` Key field used to identify items in 'updates' map. Required.
+    + `keyMustExist` If true all items identified by keys in 'updates' map should exist. Optional. Default = false
+    + `updates` Map of updates. Required.
+
+    + Body
+
+            {
+                "entity": "products",
+                "environment": "p",
+                "keyField": "itemID",
+                "keyMustExist" : true,
+                "updates": {
+                    "PIN105": {
+                        "price": 400
+                    },
+                    "LMF050": {
+                        "price": 209
+                    }
+                }
+            }
+
++ Response 200
+
+        {
+            "failures: [],
+            "updated": 2
+        }
+
++ Response 404 (application/json)
+
+        {
+            "errors": [
+                {
+                    "Updates Map size exceeds maximum value. Max. size = 100"
+                }
+            ]
+        }
+
++ Response 404 (application/json)
+
+        {
+            "errors": [
+                {
+                    "Field categoryID is not the unique key in entity products. Duplicated value is:[C01, C02]. Account context:{\n    \"_ak\": \"accountID1234\",\n    \"_env\": \"p\"\n}"
+                }
+            ]
+        }
+
++ Response 404 (application/json)
+
+        {
+            "errors": [
+                {
+                    "Entity not found. Entity: ZZZproducts"
+                }
+            ]
+        }
+
++ Response 404 (application/json)
+
+        {
+            "errors": [
+                {
+                    "Document not found. Query key:AAPIN105 Account context:{\n    \"_ak\": \"accountID1234\",\n    \"_env\": \"p\"\n}"
+                }
+            ]
+        }
+
++ Response 404 (application/json)
+
+        {
+            "errors": [
+                {
+                    "Documents with the following keyField values don't exist: PIN105, PIN106"
+                }
+            ]
+        }
+
++ Response 404 (application/json)
+
+        {
+            "errors": [
+                {
+                    "Some fields have a wrong data type or don't exist. Wrong fields: STRING_price"
+                }
+            ]
+        }
+
++ Response 404 (application/json)
+
+        {
+            "errors": [
+                {
+                    "Bad request: Argument 'environment' missing or invalid."
+                }
+            ]
+        }
 
 ## Changes [/accounts/{accountID}/changes]
 
