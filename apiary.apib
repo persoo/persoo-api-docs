@@ -650,6 +650,64 @@ Please note that this method is only available for account admins and superusers
                 }
             ]
         }
+        
+## Synonyms [/accounts/{accountID}/synonyms?environment={environment}&language={language}]
+Comming soon...
+
+Synonyms are defined by <a href="https://www.elastic.co/guide/en/elasticsearch/reference/7.3/analysis-synonym-graph-tokenfilter.html#_solr_synonyms_2">Solr synonym file.</a>
+
++ Parameters
+    + accountID (required, string, `4959bc0ab5f24ac2a9688908adaf9e24`) ... ID of the account to perform the action on
+    + environment (required, string, `test`) ... `p` (production) or `test`
+    + language (required, string, `cs_CZ`) ... language code
+    
+### putSynonyms [PUT]
+Put escaped account synonym file for given language and environment.
+
+
++ Request (application/json)
+
+    + `synonyms` escaped <a href="https://www.elastic.co/guide/en/elasticsearch/reference/7.3/analysis-synonym-graph-tokenfilter.html#_solr_synonyms_2">Solr synonym file</a> 
+    
+    + Body
+
+            {
+                "synonyms": "i-pod, ipod\nsea biscuit, sea biscit => seabiscuit"
+            }   
+    
+
++ Response 204
+
++ Response 404 (application/json)
+
+        {
+            "errors": [
+                {
+                    "message": "Account not found."
+                }
+            ]
+        }
+
+### getSynonyms [GET]
+Retrieves escaped account synonym file for given language and environment.
+
++ Response 200 (application/json)
+
+        {
+            "synonyms": "i-pod, ipod\nsea biscuit, sea biscit => seabiscuit"
+        }
+
+
++ Response 404 (application/json)
+
+        {
+            "errors": [
+                {
+                    "message": "Account not found."
+                }
+            ]
+        }
+        
 
 ## Changes [/accounts/{accountID}/changes]
 
