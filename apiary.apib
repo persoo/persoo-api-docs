@@ -2040,6 +2040,14 @@ Retrieves current status of the dataflow.
                 "status": "green"
             }
         ]
+        
+## Dataflow statuses  [/dataflowStatuses]
+Returns an array of statuses of most recent runs of dataflows that finished with an error.
+
+For each dataflow, its most recent run is /included in the list if the following is met:
+* Status of the most recent run is either `error` or `internal server error`. 
+* The dataflow account is NOT flagged with `accountArchived:true` (in account settings)
+* Dataflow name matches one of: `processProfiles`, `process /*Statistics`, `*Import`        
 
 # Group Scenarios
 Scenario is a set of products ids composed of several algorithms.
